@@ -5,6 +5,8 @@ import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { RequirementAnalyzer } from './pages/RequirementAnalyzer';
+import { TestDesignPage } from './pages/TestDesignPage';
+import { TestCasesPage } from './pages/TestCasesPage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -28,38 +30,8 @@ export const App: React.FC = () => {
           {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
           {currentTab === 'projects' && <ProjectsPage />}
           {currentTab === 'requirement-analyzer' && <RequirementAnalyzer onNavigate={setCurrentTab} />}
-
-          {currentTab === 'test-design' && (
-            <ModulePlaceholder
-              tab="test-design"
-              title="Test Scenario Generator"
-              phase={3}
-              description="Design comprehensive test scenarios applying Equivalence Partitioning and Boundary Value Analysis."
-              plannedFeatures={[
-                'Positive & Negative scenario mapping',
-                'Boundary value & edge-case discovery',
-                'Risk and priority classification',
-                'Traceability matrix generation',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
-
-          {currentTab === 'test-cases' && (
-            <ModulePlaceholder
-              tab="test-cases"
-              title="Test Case Generator & Manager"
-              phase={3}
-              description="Generate full test case specifications with preconditions, test data, steps, and expected results."
-              plannedFeatures={[
-                'Complete step-by-step test cases with test data',
-                'Severity, priority, and test type tagging',
-                'Bulk export to CSV, Excel, JSON, and Markdown',
-                'Conversion to automated test stubs',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'test-design' && <TestDesignPage onNavigate={setCurrentTab} />}
+          {currentTab === 'test-cases' && <TestCasesPage onNavigate={setCurrentTab} />}
 
           {currentTab === 'api-testing' && (
             <ModulePlaceholder

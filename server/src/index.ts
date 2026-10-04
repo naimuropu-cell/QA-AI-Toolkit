@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler';
 import prisma from './config/db';
 
 import requirementRoutes from './routes/requirementRoutes';
+import testDesignRoutes from './routes/testDesignRoutes';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/requirements', requirementRoutes);
+app.use('/api/test-design', testDesignRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

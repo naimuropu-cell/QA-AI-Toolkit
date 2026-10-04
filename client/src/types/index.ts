@@ -99,3 +99,32 @@ export interface RequirementRecord {
   updatedAt: string;
 }
 
+export interface TestScenarioRecord {
+  id: string;
+  scenarioId: string;
+  title: string;
+  module: string;
+  type: string;
+  priority: string;
+  risk: string;
+  projectId: string;
+  createdAt: string;
+}
+
+export interface TestCaseRecord {
+  id: string;
+  testCaseId: string;
+  title: string;
+  module: string;
+  preconditions?: string;
+  testData?: string;
+  steps: string;
+  expectedResult: string;
+  priority: string;
+  severity: string;
+  type: string;
+  projectId: string;
+  createdAt: string;
+}
+
+

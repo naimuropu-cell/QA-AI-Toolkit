@@ -8,16 +8,161 @@ export class LocalQAProvider implements AIProvider {
   }
 
   async generateCompletion(prompt: string, context?: AIContextPayload): Promise<string> {
-    // If prompt requests JSON requirement analysis:
+    // 1. Scenario Generation
+    if (prompt.includes('Generate comprehensive QA Test Scenarios')) {
+      const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);
+      const reqMatch = prompt.match(/Requirement:\s*([\s\S]*?)(?:Acceptance Criteria:|$)/i);
+      const mod = modMatch ? modMatch[1].trim() : 'General';
+      const req = reqMatch ? reqMatch[1].trim() : 'Module testing flow';
+      const base = mod.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'MOD';
+
+      const scenarios = [
+        {
+          scenarioId: `SCN_${base}_POS_01`,
+          title: `Verify successful user journey for ${mod} with valid inputs`,
+          type: 'Positive',
+          priority: 'High',
+          risk: 'Low',
+        },
+        {
+          scenarioId: `SCN_${base}_POS_02`,
+          title: `Verify optional fields acceptance and default value persistence in ${mod}`,
+          type: 'Positive',
+          priority: 'Medium',
+          risk: 'Low',
+        },
+        {
+          scenarioId: `SCN_${base}_NEG_01`,
+          title: `Verify mandatory field validation error upon blank submission in ${mod}`,
+          type: 'Negative',
+          priority: 'High',
+          risk: 'Medium',
+        },
+        {
+          scenarioId: `SCN_${base}_NEG_02`,
+          title: `Verify rejection of malformed or invalid syntax payload in ${mod}`,
+          type: 'Negative',
+          priority: 'High',
+          risk: 'High',
+        },
+        {
+          scenarioId: `SCN_${base}_BND_01`,
+          title: `Verify maximum length boundary value limits on ${mod} input fields`,
+          type: 'Boundary Value',
+          priority: 'Medium',
+          risk: 'Low',
+        },
+        {
+          scenarioId: `SCN_${base}_SEC_01`,
+          title: `Verify authorization guard and XSS/SQLi payload sanitization on ${mod}`,
+          type: 'Security',
+          priority: 'High',
+          risk: 'High',
+        },
+        {
+          scenarioId: `SCN_${base}_REG_01`,
+          title: `Verify existing active session remains consistent after executing ${mod}`,
+          type: 'Regression',
+          priority: 'Medium',
+          risk: 'Medium',
+        },
+      ];
+
+      return JSON.stringify(scenarios, null, 2);
+    }
+
+    // 2. Test Cases Generation
+    if (prompt.includes('Generate detailed, production-grade QA Test Cases')) {
+      const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);
+      const mod = modMatch ? modMatch[1].trim() : 'Feature';
+      const prefix = mod.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4) || 'TC';
+
+      const testCases = [
+        {
+          testCaseId: `TC_${prefix}_001`,
+          title: `Verify Happy Path functionality for ${mod}`,
+          module: mod,
+          preconditions: 'User is authenticated and target page is loaded.',
+          testData: 'Valid input dataset populated with standard parameters.',
+          steps: '1. Navigate to target URL.\\n2. Enter all mandatory fields with valid test data.\\n3. Click Submit button.\\n4. Observe confirmation toast and updated status.',
+          expectedResult: 'System processes the submission successfully and displays confirmation.',
+          priority: 'High',
+          severity: 'Critical',
+          type: 'Functional',
+        },
+        {
+          testCaseId: `TC_${prefix}_002`,
+          title: `Verify Missing Required Parameters in ${mod}`,
+          module: mod,
+          preconditions: 'Target form is active.',
+          testData: 'Empty strings in mandatory inputs.',
+          steps: '1. Clear all required input fields.\\n2. Click Submit button.\\n3. Check client and server-side responses.',
+          expectedResult: 'Form submission is halted; error highlights indicate required fields.',
+          priority: 'High',
+          severity: 'Major',
+          type: 'Negative',
+        },
+        {
+          testCaseId: `TC_${prefix}_003`,
+          title: `Verify Input Length Upper Boundary for ${mod}`,
+          module: mod,
+          preconditions: 'Form input field is active and focused.',
+          testData: 'String of length equal to maximum allowed + 1 character.',
+          steps: '1. Paste maximum boundary string into target field.\\n2. Submit the form.\\n3. Check character truncation or validation prompt.',
+          expectedResult: 'Input is trimmed to max allowed length or validation message displayed.',
+          priority: 'Medium',
+          severity: 'Minor',
+          type: 'Boundary',
+        },
+        {
+          testCaseId: `TC_${prefix}_004`,
+          title: `Verify Injection and Input Sanitization on ${mod}`,
+          module: mod,
+          preconditions: 'User is on the input form.',
+          testData: '<script>alert("xss")</script> and `\' OR \'1\'=\'1`',
+          steps: '1. Enter malicious script payload into text inputs.\\n2. Submit form.\\n3. Verify returned response and HTML rendering.',
+          expectedResult: 'Payload is encoded and rendered harmlessly without script execution.',
+          priority: 'High',
+          severity: 'Critical',
+          type: 'Security',
+        },
+      ];
+
+      return JSON.stringify(testCases, null, 2);
+    }
+
+    // 3. Expand Single Scenario to Test Case
+    if (prompt.includes('Expand this single QA Test Scenario')) {
+      const titleMatch = prompt.match(/Scenario Title:\s*(.*?)(?:\n|$)/i);
+      const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);
+      const typeMatch = prompt.match(/Type:\s*(.*?)(?:\n|$)/i);
+      const scnTitle = titleMatch ? titleMatch[1].trim() : 'Test Scenario';
+      const scnMod = modMatch ? modMatch[1].trim() : 'General';
+      const scnType = typeMatch ? typeMatch[1].trim() : 'Functional';
+
+      const singleTc = {
+        testCaseId: `TC_${Date.now()}`,
+        title: scnTitle,
+        module: scnMod,
+        preconditions: `Target page for module "${scnMod}" is open and application services are operational.`,
+        testData: 'Standard test data aligned with test condition criteria.',
+        steps: `1. Open module "${scnMod}".\\n2. Perform test action: "${scnTitle}".\\n3. Capture response status and UI element states.`,
+        expectedResult: `System behaves strictly according to expectations for: ${scnTitle}`,
+        priority: 'High',
+        severity: 'Major',
+        type: scnType,
+      };
+
+      return JSON.stringify(singleTc, null, 2);
+    }
+
+    // 4. Default: Requirement Analysis
     const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);
     const storyMatch = prompt.match(/User Story:\s*(.*?)(?:\n|$)/i);
     const acMatch = prompt.match(/Acceptance Criteria:\s*([\s\S]*?)(?:Additional Context:|$)/i);
-    const contextMatch = prompt.match(/Additional Context:\s*([\s\S]*?)(?:$)/i);
-
     const title = titleMatch ? titleMatch[1].trim() : 'Requirement Analysis';
     const userStory = storyMatch ? storyMatch[1].trim() : 'Standard QA User Story';
     const acText = acMatch ? acMatch[1].trim() : '';
-    const additional = contextMatch ? contextMatch[1].trim() : '';
 
     const acLines = acText
       .split('\n')

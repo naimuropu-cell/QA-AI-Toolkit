@@ -203,6 +203,127 @@ export const api = {
     return res.json();
   },
 
+  // Test Design & Scenarios
+  async getScenarios(projectId: string): Promise<{ scenarios: any[] }> {
+    const res = await fetch(`${API_BASE}/test-design/scenarios/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch test scenarios');
+    return res.json();
+  },
+
+  async generateScenarios(data: {
+    projectId: string;
+    module: string;
+    requirementText: string;
+    acceptanceCriteria?: string;
+    testTypes?: string[];
+  }): Promise<{ count: number; scenarios: any[]; provider: string }> {
+    const res = await fetch(`${API_BASE}/test-design/generate-scenarios`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate scenarios');
+    }
+    return res.json();
+  },
+
+  async deleteScenario(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/test-design/scenarios/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete scenario');
+    return res.json();
+  },
+
+  // Test Cases
+  async getTestCases(projectId: string): Promise<{ testCases: any[] }> {
+    const res = await fetch(`${API_BASE}/test-design/test-cases/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch test cases');
+    return res.json();
+  },
+
+  async getTestCase(id: string): Promise<{ testCase: any }> {
+    const res = await fetch(`${API_BASE}/test-design/test-cases/detail/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch test case details');
+    return res.json();
+  },
+
+  async generateTestCases(data: {
+    projectId: string;
+    module: string;
+    requirementText: string;
+    acceptanceCriteria?: string;
+    scenarios?: string[];
+  }): Promise<{ count: number; testCases: any[]; provider: string }> {
+    const res = await fetch(`${API_BASE}/test-design/generate-test-cases`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate test cases');
+    }
+    return res.json();
+  },
+
+  async createTestCase(data: any): Promise<{ testCase: any }> {
+    const res = await fetch(`${API_BASE}/test-design/test-cases`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create test case');
+    }
+    return res.json();
+  },
+
+  async updateTestCase(id: string, data: any): Promise<{ testCase: any }> {
+    const res = await fetch(`${API_BASE}/test-design/test-cases/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update test case');
+    }
+    return res.json();
+  },
+
+  async deleteTestCase(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/test-design/test-cases/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete test case');
+    return res.json();
+  },
+
+  async convertScenarioToTestCase(scenarioId: string): Promise<{ message: string; testCase: any }> {
+    const res = await fetch(`${API_BASE}/test-design/convert-scenario`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ scenarioId }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to convert scenario to test case');
+    }
+    return res.json();
+  },
+
   // Health
   async checkHealth(): Promise<any> {
     const res = await fetch(`${API_BASE}/health`);

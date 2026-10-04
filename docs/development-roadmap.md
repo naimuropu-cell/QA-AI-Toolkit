@@ -20,10 +20,12 @@
   - Conversion pipeline: Requirements -> Database Test Scenarios.
   - Export to Markdown & JSON.
 
-- [ ] **Phase 3: Test Design & Test Cases**
-  - Equivalence partitioning & boundary value scenario generation.
-  - Full test case specification (preconditions, steps, data, expected results).
-  - Export utilities (CSV, Excel, JSON, Markdown).
+- [x] **Phase 3: Test Design & Test Cases**
+  - Scenario Generator supporting Positive, Negative, Boundary, Equivalence, Security, and Regression tests.
+  - Scenario-to-TestCase automatic expansion engine.
+  - Full test case specification manager (preconditions, test data, step-by-step actions, expected results, priority, severity).
+  - Multi-format test export engine (CSV, Excel HTML table, JSON, Markdown specification).
+
 
 - [ ] **Phase 4: Bug & API Testing Assistant**
   - Defect report builder with root-cause hypotheses and regression test converter.
