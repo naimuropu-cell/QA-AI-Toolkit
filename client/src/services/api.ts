@@ -324,6 +324,90 @@ export const api = {
     return res.json();
   },
 
+  // Bugs & Defect Analysis
+  async analyzeBug(data: any): Promise<{ bug: any; analysis: any; provider: string }> {
+    const res = await fetch(`${API_BASE}/bugs/analyze`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to analyze bug');
+    }
+    return res.json();
+  },
+
+  async getBugs(projectId: string): Promise<{ bugs: any[] }> {
+    const res = await fetch(`${API_BASE}/bugs/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch bug reports');
+    return res.json();
+  },
+
+  async getBug(id: string): Promise<{ bug: any }> {
+    const res = await fetch(`${API_BASE}/bugs/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch bug report');
+    return res.json();
+  },
+
+  async convertBugToTestCase(id: string): Promise<{ message: string; testCase: any }> {
+    const res = await fetch(`${API_BASE}/bugs/${id}/convert-test-case`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to convert bug to test case');
+    return res.json();
+  },
+
+  async deleteBug(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/bugs/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete bug report');
+    return res.json();
+  },
+
+  // API Testing
+  async generateApiTests(data: any): Promise<{
+    suite: any;
+    analysis: any;
+    postmanCollection: any;
+    provider: string;
+  }> {
+    const res = await fetch(`${API_BASE}/api-testing/generate`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate API tests');
+    }
+    return res.json();
+  },
+
+  async getApiSuites(projectId: string): Promise<{ suites: any[] }> {
+    const res = await fetch(`${API_BASE}/api-testing/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch API test suites');
+    return res.json();
+  },
+
+  async deleteApiSuite(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/api-testing/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete API test suite');
+    return res.json();
+  },
+
   // Health
   async checkHealth(): Promise<any> {
     const res = await fetch(`${API_BASE}/health`);

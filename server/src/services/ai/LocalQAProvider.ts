@@ -8,6 +8,110 @@ export class LocalQAProvider implements AIProvider {
   }
 
   async generateCompletion(prompt: string, context?: AIContextPayload): Promise<string> {
+    // 0. Bug Analysis & Bug Report Generation
+    if (prompt.includes('Analyze Bug and Generate Professional Defect Report')) {
+      const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);
+      const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);
+      const descMatch = prompt.match(/Description:\s*([\s\S]*?)(?:Steps:|$)/i);
+      const errorMatch = prompt.match(/Error Logs:\s*([\s\S]*?)(?:Expected:|$)/i);
+      const expectedMatch = prompt.match(/Expected:\s*([\s\S]*?)(?:Actual:|$)/i);
+      const actualMatch = prompt.match(/Actual:\s*([\s\S]*?)(?:Environment:|$)/i);
+
+      const title = titleMatch ? titleMatch[1].trim() : 'Uncaught Exception in Application Flow';
+      const mod = modMatch ? modMatch[1].trim() : 'Core System';
+      const desc = descMatch ? descMatch[1].trim() : 'Unexpected defect observed during test execution.';
+      const logs = errorMatch ? errorMatch[1].trim() : 'N/A';
+      const expected = expectedMatch ? expectedMatch[1].trim() : 'Operation should complete without error.';
+      const actual = actualMatch ? actualMatch[1].trim() : 'System returned unhandled error response.';
+
+      const report = {
+        title: `[DEFECT] ${title}`,
+        module: mod,
+        environment: 'Staging / QA Build (Chrome 128 / Windows 11)',
+        preconditions: '1. User is logged in with standard account privileges.\n2. Target application services and database connections are healthy.',
+        stepsToReproduce: `1. Navigate to target module "${mod}".\n2. Perform transaction sequence leading to defect: "${desc}".\n3. Trigger action and observe execution failure.`,
+        expectedResult: expected,
+        actualResult: actual,
+        severity: logs.includes('500') || logs.includes('Crash') || logs.includes('NullPointer') ? 'Critical' : 'Major',
+        priority: 'High',
+        bugType: logs.includes('Token') || logs.includes('401') ? 'Security / Auth' : 'Functional Logic',
+        rootCauseHypothesis: 'Likely unhandled null/undefined reference or missing asynchronous await during state mutation before response dispatch.',
+        evidence: logs !== 'N/A' ? `Console/Network Error: ${logs.slice(0, 300)}` : 'Captured network error 500 on action trigger.',
+        suggestedFix: 'Implement defensive null-check guards on request payload parameters and wrap downstream database operations in try/catch block with sanitized error response.',
+        regressionRisk: 'High - affects all adjacent transactional flows dependent on this shared service module.',
+      };
+
+      return JSON.stringify(report, null, 2);
+    }
+
+    // 0.1 API Test Suite & Postman Generation
+    if (prompt.includes('Generate API Test Suite & Postman Scripts')) {
+      const endpointMatch = prompt.match(/Endpoint:\s*(.*?)(?:\n|$)/i);
+      const methodMatch = prompt.match(/Method:\s*(.*?)(?:\n|$)/i);
+      const endpoint = endpointMatch ? endpointMatch[1].trim() : '/api/v1/resource';
+      const method = methodMatch ? methodMatch[1].trim().toUpperCase() : 'GET';
+
+      const suite = {
+        name: `${method} ${endpoint} Test Suite`,
+        endpoint,
+        method,
+        scenarios: [
+          {
+            id: 'API_POS_200',
+            name: `Positive 200/201 Success - ${method} ${endpoint}`,
+            type: 'Positive',
+            expectedStatus: method === 'POST' ? 201 : 200,
+            description: 'Verify endpoint returns expected HTTP status and compliant JSON schema on valid payload.',
+          },
+          {
+            id: 'API_NEG_400',
+            name: `Negative 400 Bad Request - Missing Parameters`,
+            type: 'Validation',
+            expectedStatus: 400,
+            description: 'Verify endpoint rejects payload missing required attributes with clear error schema.',
+          },
+          {
+            id: 'API_NEG_401',
+            name: `Negative 401 Unauthorized - Invalid / Expired Token`,
+            type: 'Security',
+            expectedStatus: 401,
+            description: 'Verify requests without valid Bearer authorization header are rejected.',
+          },
+          {
+            id: 'API_BND_422',
+            name: `Boundary 422 Unprocessable Entity - Payload Limits`,
+            type: 'Boundary',
+            expectedStatus: 422,
+            description: 'Verify string length or numeric range boundaries exceed allowed limits.',
+          },
+        ],
+        postmanScript: `// Test Status Code
+pm.test("Status code is 200/201 OK", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+});
+
+// Test Response Time Under SLA
+pm.test("Response time is acceptable (< 1500ms)", function () {
+    pm.expect(pm.response.responseTime).to.be.below(1500);
+});
+
+// Test JSON Schema Structure
+pm.test("Response has valid JSON payload", function () {
+    const jsonData = pm.response.json();
+    pm.expect(jsonData).to.be.an("object");
+});
+
+// Test Content-Type Header
+pm.test("Content-Type is application/json", function () {
+    pm.response.to.have.header("Content-Type");
+    pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+});`,
+        newmanCommand: `newman run postman_collection.json --environment qa_environment.json --reporters cli,htmlextra`,
+      };
+
+      return JSON.stringify(suite, null, 2);
+    }
+
     // 1. Scenario Generation
     if (prompt.includes('Generate comprehensive QA Test Scenarios')) {
       const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);

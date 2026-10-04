@@ -54,6 +54,7 @@ export type NavigationTab =
   | 'requirement-analyzer'
   | 'test-design'
   | 'test-cases'
+  | 'bug-analyzer'
   | 'api-testing'
   | 'automation'
   | 'codebase'
@@ -126,5 +127,48 @@ export interface TestCaseRecord {
   projectId: string;
   createdAt: string;
 }
+
+export interface BugReportRecord {
+  id: string;
+  title: string;
+  module: string;
+  severity: string;
+  priority: string;
+  bugType: string;
+  environment: string;
+  preconditions?: string;
+  stepsToReproduce: string;
+  expectedResult: string;
+  actualResult: string;
+  rootCause?: string;
+  evidence?: string;
+  suggestedFix?: string;
+  regressionRisk?: string;
+  projectId: string;
+  createdAt: string;
+}
+
+export interface ApiScenario {
+  id: string;
+  name: string;
+  type: string;
+  expectedStatus: number;
+  description: string;
+}
+
+export interface ApiTestSuiteRecord {
+  id: string;
+  name: string;
+  endpoint: string;
+  method: string;
+  headers?: string;
+  requestBody?: string;
+  testScenarios: string; // JSON
+  postmanScript: string;
+  newmanCommand?: string;
+  projectId: string;
+  createdAt: string;
+}
+
 
 

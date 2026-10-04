@@ -27,10 +27,12 @@
   - Multi-format test export engine (CSV, Excel HTML table, JSON, Markdown specification).
 
 
-- [ ] **Phase 4: Bug & API Testing Assistant**
-  - Defect report builder with root-cause hypotheses and regression test converter.
-  - API Testing Assistant supporting GET, POST, PUT, PATCH, DELETE.
-  - Postman collection & Newman test generation with automatic secret masking.
+- [x] **Phase 4: Bug & API Testing Assistant**
+  - Defect report builder with environment, steps, actual/expected, root-cause hypotheses, and suggested fixes.
+  - Bug-to-Regression Test Case automatic conversion engine.
+  - API Testing Assistant supporting GET, POST, PUT, PATCH, DELETE endpoints.
+  - Postman Collection JSON (v2.1) export & Newman CLI command generator with automated secret masking.
+
 
 - [ ] **Phase 5: Automation Generator**
   - Playwright (TypeScript/JavaScript) generator.

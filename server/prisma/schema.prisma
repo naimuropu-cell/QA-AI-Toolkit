@@ -37,6 +37,7 @@ model Project {
   scenarios       TestScenario[]
   testCases       TestCase[]
   bugs            BugReport[]
+  apiSuites       ApiTestSuite[]
   knowledgeItems  KnowledgeItem[]
 }
 
@@ -100,16 +101,34 @@ model BugReport {
   module           String   @default("General")
   severity         String   @default("Major")
   priority         String   @default("High")
+  bugType          String   @default("Functional")
   environment      String   @default("QA / Staging")
+  preconditions    String?
   stepsToReproduce String
   expectedResult   String
   actualResult     String
   rootCause        String?
+  evidence         String?
   suggestedFix     String?
   regressionRisk   String?
   projectId        String
   project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt        DateTime @default(now())
+}
+
+model ApiTestSuite {
+  id            String   @id @default(uuid())
+  name          String
+  endpoint      String
+  method        String   @default("GET")
+  headers       String?
+  requestBody   String?
+  testScenarios String   // JSON string of positive, negative, boundary, security tests
+  postmanScript String   // Postman test assertions
+  newmanCommand String?  // CLI invocation suggestion
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
 }
 
 model KnowledgeItem {

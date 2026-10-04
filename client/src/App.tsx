@@ -7,6 +7,8 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { RequirementAnalyzer } from './pages/RequirementAnalyzer';
 import { TestDesignPage } from './pages/TestDesignPage';
 import { TestCasesPage } from './pages/TestCasesPage';
+import { BugAnalyzerPage } from './pages/BugAnalyzerPage';
+import { ApiTestingPage } from './pages/ApiTestingPage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -32,22 +34,8 @@ export const App: React.FC = () => {
           {currentTab === 'requirement-analyzer' && <RequirementAnalyzer onNavigate={setCurrentTab} />}
           {currentTab === 'test-design' && <TestDesignPage onNavigate={setCurrentTab} />}
           {currentTab === 'test-cases' && <TestCasesPage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'api-testing' && (
-            <ModulePlaceholder
-              tab="api-testing"
-              title="API Testing Assistant"
-              phase={4}
-              description="Analyze REST contracts (GET, POST, PUT, PATCH, DELETE) and generate Postman/Newman validation suites."
-              plannedFeatures={[
-                'Contract validation and payload fuzzing ideas',
-                'Negative testing and HTTP status code verification',
-                'Automatic token and secret masking',
-                'Executable Postman test scripts export',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'bug-analyzer' && <BugAnalyzerPage onNavigate={setCurrentTab} />}
+          {currentTab === 'api-testing' && <ApiTestingPage onNavigate={setCurrentTab} />}
 
           {currentTab === 'automation' && (
             <ModulePlaceholder
