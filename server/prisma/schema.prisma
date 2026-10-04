@@ -1,0 +1,125 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String        @id @default(uuid())
+  email     String        @unique
+  password  String
+  name      String
+  role      String        @default("qa_engineer")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  projects  Project[]
+  logs      ActivityLog[]
+}
+
+model Project {
+  id              String                @id @default(uuid())
+  name            String
+  description     String?
+  techStack       String?               @default("TypeScript / React")
+  testFramework   String?               @default("Playwright")
+  qaStandards     String?
+  targetUrl       String?
+  repositoryPath  String?
+  userId          String?
+  user            User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  activities      ActivityLog[]
+  requirements    RequirementAnalysis[]
+  scenarios       TestScenario[]
+  testCases       TestCase[]
+  bugs            BugReport[]
+  knowledgeItems  KnowledgeItem[]
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  target    String
+  details   String?
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+model RequirementAnalysis {
+  id                 String   @id @default(uuid())
+  title              String
+  userStory          String
+  acceptanceCriteria String?
+  analysisJson       String   // Stores structured functional, non-functional, gaps, edge cases, risks
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model TestScenario {
+  id         String   @id @default(uuid())
+  scenarioId String
+  title      String
+  module     String   @default("General")
+  type       String   @default("Positive")
+  priority   String   @default("Medium")
+  risk       String   @default("Low")
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model TestCase {
+  id             String   @id @default(uuid())
+  testCaseId     String
+  title          String
+  module         String   @default("General")
+  preconditions  String?
+  testData       String?
+  steps          String   // JSON string or step-by-step text
+  expectedResult String
+  priority       String   @default("Medium")
+  severity       String   @default("Medium")
+  type           String   @default("Functional")
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+}
+
+model BugReport {
+  id               String   @id @default(uuid())
+  title            String
+  module           String   @default("General")
+  severity         String   @default("Major")
+  priority         String   @default("High")
+  environment      String   @default("QA / Staging")
+  stepsToReproduce String
+  expectedResult   String
+  actualResult     String
+  rootCause        String?
+  suggestedFix     String?
+  regressionRisk   String?
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+}
+
+model KnowledgeItem {
+  id        String   @id @default(uuid())
+  title     String
+  category  String   @default("Automation Rules")
+  content   String
+  tags      String?
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

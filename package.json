@@ -1,0 +1,30 @@
+{
+  "name": "personal-qa-ai-toolkit",
+  "version": "1.0.0",
+  "description": "Production-Ready Personal QA AI Toolkit - Full Lifecycle AI QA Assistant",
+  "main": "server/dist/index.js",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev:server\" \"npm run dev:client\"",
+    "build:server": "npm --prefix server run build",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:server && npm run build:client",
+    "start": "npm --prefix server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "ai",
+    "automation",
+    "playwright",
+    "selenium",
+    "test-design"
+  ],
+  "author": "naimuropu-cell",
+  "license": "MIT"
+}
