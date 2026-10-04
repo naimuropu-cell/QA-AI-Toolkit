@@ -140,6 +140,69 @@ export const api = {
     return res.json();
   },
 
+  // Requirements
+  async analyzeRequirement(data: {
+    projectId: string;
+    title: string;
+    userStory: string;
+    acceptanceCriteria?: string;
+    additionalContext?: string;
+    save?: boolean;
+  }): Promise<{
+    record?: any;
+    analysis: any;
+    provider: string;
+  }> {
+    const res = await fetch(`${API_BASE}/requirements/analyze`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to analyze requirement');
+    }
+    return res.json();
+  },
+
+  async getRequirementsByProject(projectId: string): Promise<{ requirements: any[] }> {
+    const res = await fetch(`${API_BASE}/requirements/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch project requirements');
+    return res.json();
+  },
+
+  async getRequirement(id: string): Promise<{ requirement: any; analysis: any }> {
+    const res = await fetch(`${API_BASE}/requirements/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch requirement');
+    return res.json();
+  },
+
+  async convertRequirementToScenarios(id: string): Promise<{
+    message: string;
+    convertedCount: number;
+    scenarios: any[];
+  }> {
+    const res = await fetch(`${API_BASE}/requirements/${id}/convert-scenarios`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to convert scenarios');
+    return res.json();
+  },
+
+  async deleteRequirement(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/requirements/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete requirement');
+    return res.json();
+  },
+
   // Health
   async checkHealth(): Promise<any> {
     const res = await fetch(`${API_BASE}/health`);

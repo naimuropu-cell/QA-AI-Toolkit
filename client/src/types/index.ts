@@ -62,3 +62,40 @@ export type NavigationTab =
   | 'knowledge-base'
   | 'prompt-library'
   | 'settings';
+
+export interface ScenarioDetail {
+  id: string;
+  title: string;
+  type: string;
+  priority: string;
+  risk: string;
+}
+
+export interface RequirementAnalysisResult {
+  summary: string;
+  frameworkTarget: string;
+  functionalRequirements: string[];
+  nonFunctionalRequirements: string[];
+  missingRequirements: string[];
+  ambiguousStatements: string[];
+  acceptanceCriteriaGaps: string[];
+  positiveScenarios: ScenarioDetail[];
+  negativeScenarios: ScenarioDetail[];
+  edgeCases: ScenarioDetail[];
+  boundaryConditions: ScenarioDetail[];
+  qaClarificationQuestions: string[];
+  potentialRisks: string[];
+  suggestedTestCoverage: string[];
+}
+
+export interface RequirementRecord {
+  id: string;
+  title: string;
+  userStory: string;
+  acceptanceCriteria?: string;
+  analysisJson: string;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+

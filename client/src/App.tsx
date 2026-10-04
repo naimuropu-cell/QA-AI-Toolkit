@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { ProjectsPage } from './pages/ProjectsPage';
+import { RequirementAnalyzer } from './pages/RequirementAnalyzer';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -26,23 +27,7 @@ export const App: React.FC = () => {
         <main className="flex-1 overflow-y-auto">
           {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
           {currentTab === 'projects' && <ProjectsPage />}
-
-          {currentTab === 'requirement-analyzer' && (
-            <ModulePlaceholder
-              tab="requirement-analyzer"
-              title="Requirement Analyzer"
-              phase={2}
-              description="Dissect user stories, uncover ambiguity, detect acceptance criteria gaps, and flag potential risks."
-              plannedFeatures={[
-                'Functional & Non-Functional requirement extraction',
-                'Acceptance Criteria completeness auditing',
-                'Ambiguous statements and risk detection',
-                'One-click conversion into test scenarios',
-                'Export to Markdown, JSON, and Jira format',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'requirement-analyzer' && <RequirementAnalyzer onNavigate={setCurrentTab} />}
 
           {currentTab === 'test-design' && (
             <ModulePlaceholder

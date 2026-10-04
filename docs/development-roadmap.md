@@ -2,7 +2,7 @@
 
 ## Phase Overview
 
-- [x] **Phase 1: Foundation (Current)**
+- [x] **Phase 1: Foundation**
   - Project architecture & monorepo structure.
   - Server (Express + TypeScript + Prisma ORM + SQLite).
   - Client (React 18 + Vite + TypeScript + Tailwind CSS).
@@ -12,11 +12,13 @@
   - Activity audit logging.
   - Documentation & Git workflow setup.
 
-- [ ] **Phase 2: Requirement Intelligence**
-  - Requirement Analyzer engine.
-  - Multi-provider AI abstraction layer (OpenAI, Anthropic, Gemini, Mock).
+- [x] **Phase 2: Requirement Intelligence**
+  - Requirement Analyzer engine with 12 structured QA analysis categories.
+  - Multi-provider AI abstraction layer (OpenAI, Anthropic, Gemini, Local QA Provider).
+  - Secret scrubber utility preventing credential and token leakage.
   - Functional / non-functional / risk / gap analysis breakdown.
-  - Conversion pipeline: Requirements -> Scenarios.
+  - Conversion pipeline: Requirements -> Database Test Scenarios.
+  - Export to Markdown & JSON.
 
 - [ ] **Phase 3: Test Design & Test Cases**
   - Equivalence partitioning & boundary value scenario generation.

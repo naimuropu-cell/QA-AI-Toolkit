@@ -32,7 +32,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'projects', label: 'Projects', icon: FolderKanban },
-  { id: 'requirement-analyzer', label: 'Requirement Analyzer', icon: FileSearch, phase: 2 },
+  { id: 'requirement-analyzer', label: 'Requirement Analyzer', icon: FileSearch },
   { id: 'test-design', label: 'Test Design', icon: Layers, phase: 3 },
   { id: 'test-cases', label: 'Test Cases', icon: CheckSquare, phase: 3 },
   { id: 'api-testing', label: 'API Testing', icon: Globe2, phase: 4 },
