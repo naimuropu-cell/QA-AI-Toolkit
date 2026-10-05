@@ -38,6 +38,7 @@ model Project {
   testCases       TestCase[]
   bugs            BugReport[]
   apiSuites       ApiTestSuite[]
+  automationSuites AutomationSuite[]
   knowledgeItems  KnowledgeItem[]
 }
 
@@ -141,4 +142,20 @@ model KnowledgeItem {
   project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AutomationSuite {
+  id              String   @id @default(uuid())
+  name            String
+  framework       String   @default("Playwright-TS") // Playwright-TS, Playwright-JS, Selenium-Python, Selenium-Java
+  targetUrl       String?
+  pageObjectName  String
+  pageObjectCode  String
+  testFileCode    String
+  fixtureCode     String?
+  testDataJson    String?
+  folderStructure String?
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
 }

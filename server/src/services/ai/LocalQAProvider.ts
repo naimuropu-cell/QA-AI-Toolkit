@@ -8,7 +8,508 @@ export class LocalQAProvider implements AIProvider {
   }
 
   async generateCompletion(prompt: string, context?: AIContextPayload): Promise<string> {
-    // 0. Bug Analysis & Bug Report Generation
+    // 0. Automation Suite Generation (Playwright / Selenium)
+    if (prompt.includes('Generate Repository-Native Automation Suite')) {
+      const frameworkMatch = prompt.match(/Framework:\s*(.*?)(?:\n|$)/i);
+      const pageMatch = prompt.match(/Page\/Component Name:\s*(.*?)(?:\n|$)/i);
+      const urlMatch = prompt.match(/Target URL:\s*(.*?)(?:\n|$)/i);
+      const descMatch = prompt.match(/Feature Description:\s*([\s\S]*?)(?:Locator Hints:|$)/i);
+      const hintsMatch = prompt.match(/Locator Hints:\s*([\s\S]*?)(?:Coding Standards:|$)/i);
+      const standardsMatch = prompt.match(/Coding Standards:\s*([\s\S]*?)(?:JSON Response:|$)/i);
+
+      const framework = frameworkMatch ? frameworkMatch[1].trim() : 'Playwright-TS';
+      const pageNameRaw = pageMatch ? pageMatch[1].trim() : 'LoginPage';
+      const pageName = pageNameRaw.replace(/[^a-zA-Z0-9]/g, '') || 'AuthPage';
+      const targetUrl = urlMatch ? urlMatch[1].trim() : (context?.targetUrl || 'https://app.example.com');
+      const desc = descMatch ? descMatch[1].trim() : 'Core feature user journey automation';
+      const standards = standardsMatch ? standardsMatch[1].trim() : (context?.qaStandards || 'Page Object Model, no arbitrary sleeps, strict typing');
+      const camelPage = pageName.charAt(0).toLowerCase() + pageName.slice(1);
+      const lowerPage = pageName.toLowerCase();
+
+      if (framework === 'Selenium-Python') {
+        const suite = {
+          name: `${pageName} Selenium Suite`,
+          framework: 'Selenium-Python',
+          targetUrl,
+          pageObjectName: `${pageName}Page`,
+          pageObjectCode: `from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class ${pageName}Page:
+    """
+    Page Object Model for ${pageName}
+    Built adhering to QA standards: ${standards}
+    """
+    URL = "${targetUrl}"
+
+    # Stable Locators
+    MAIN_HEADING = (By.CSS_SELECTOR, "h1, [role='heading']")
+    EMAIL_INPUT = (By.CSS_SELECTOR, "input[type='email'], input[name='email'], [data-testid='email-input']")
+    PASSWORD_INPUT = (By.CSS_SELECTOR, "input[type='password'], [data-testid='password-input']")
+    PRIMARY_SUBMIT_BUTTON = (By.CSS_SELECTOR, "button[type='submit'], [data-testid='submit-btn'], .btn-primary")
+    ALERT_BANNER = (By.CSS_SELECTOR, "[role='alert'], .toast-alert, .alert-box")
+    ERROR_FEEDBACK = (By.CSS_SELECTOR, ".error-feedback, [data-testid='error-msg']")
+
+    def __init__(self, driver: WebDriver, timeout: int = 10):
+        self.driver = driver
+        self.wait = WebDriverWait(driver, timeout)
+
+    def goto(self):
+        """Navigate to target page with explicit document ready wait"""
+        self.driver.get(self.URL)
+        self.wait.until(EC.visibility_of_element_located(self.MAIN_HEADING))
+        return self
+
+    def fill_form(self, username: str, secret: str):
+        """Input sanitized test credentials into target form"""
+        email_el = self.wait.until(EC.element_to_be_clickable(self.EMAIL_INPUT))
+        email_el.clear()
+        email_el.send_keys(username)
+
+        password_el = self.wait.until(EC.element_to_be_clickable(self.PASSWORD_INPUT))
+        password_el.clear()
+        password_el.send_keys(secret)
+        return self
+
+    def submit(self):
+        """Click primary submission action with actionable element wait"""
+        btn = self.wait.until(EC.element_to_be_clickable(self.PRIMARY_SUBMIT_BUTTON))
+        btn.click()
+        return self
+
+    def get_alert_text(self) -> str:
+        """Capture alert confirmation banner text"""
+        alert = self.wait.until(EC.visibility_of_element_located(self.ALERT_BANNER))
+        return alert.text
+
+    def is_error_displayed(self, expected_snippet: str = "") -> bool:
+        """Assert error presence without arbitrary sleeps"""
+        error_el = self.wait.until(EC.visibility_of_element_located(self.ERROR_FEEDBACK))
+        return expected_snippet in error_el.text if expected_snippet else error_el.is_displayed()
+`,
+          testFileCode: `import json
+import os
+import pytest
+from pages.${lowerPage}_page import ${pageName}Page
+
+@pytest.fixture(scope="session")
+def test_data():
+    data_path = os.path.join(os.path.dirname(__file__), "..", "data", "test_data.json")
+    with open(data_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+class Test${pageName}:
+    """
+    Automated Test Suite for ${pageName}
+    Feature: ${desc}
+    """
+
+    def test_happy_path_success(self, driver, test_data):
+        """TC01 - Verify Happy Path execution succeeds"""
+        page = ${pageName}Page(driver)
+        page.goto()
+        page.fill_form(test_data["validUser"]["email"], test_data["validUser"]["password"])
+        page.submit()
+        alert = page.get_alert_text()
+        assert alert is not None and len(alert) > 0
+
+    def test_invalid_submission_displays_error(self, driver, test_data):
+        """TC02 - Verify Error Feedback on Invalid Submission"""
+        page = ${pageName}Page(driver)
+        page.goto()
+        page.fill_form(test_data["invalidUser"]["email"], test_data["invalidUser"]["password"])
+        page.submit()
+        assert page.is_error_displayed(test_data["expectedErrors"]["invalidCredentials"])
+`,
+          fixtureCode: `import pytest
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+@pytest.fixture(scope="function")
+def driver():
+    """Provides an isolated Chrome WebDriver instance per test with clean teardown"""
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
+
+    driver = webdriver.Chrome(options=options)
+    driver.implicitly_wait(0) # Strictly rely on Page Object explicit waits
+    yield driver
+    driver.quit()
+`,
+          testDataJson: JSON.stringify({
+            validUser: {
+              email: "qa.python.tester@example.com",
+              password: "PythonSecure2026!"
+            },
+            invalidUser: {
+              email: "invalid_syntax@@email",
+              password: "wrong_password"
+            },
+            expectedErrors: {
+              invalidCredentials: "Invalid credentials",
+              missingField: "Required field"
+            }
+          }, null, 2),
+          folderStructure: `selenium-python-suite/
+├── conftest.py
+├── pytest.ini
+├── requirements.txt
+├── pages/
+│   ├── __init__.py
+│   └── ${lowerPage}_page.py
+├── data/
+│   └── test_data.json
+└── tests/
+    ├── __init__.py
+    └── test_${lowerPage}.py`
+        };
+
+        return JSON.stringify(suite, null, 2);
+      }
+
+      if (framework === 'Selenium-Java') {
+        const suite = {
+          name: `${pageName} Java Suite`,
+          framework: 'Selenium-Java',
+          targetUrl,
+          pageObjectName: `${pageName}Page`,
+          pageObjectCode: `package com.qa.pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class ${pageName}Page {
+    private final WebDriver driver;
+    private final WebDriverWait wait;
+    private static final String URL = "${targetUrl}";
+
+    // Locators
+    private final By mainHeading = By.cssSelector("h1, [role='heading']");
+    private final By emailInput = By.cssSelector("input[type='email'], [data-testid='email-input']");
+    private final By passwordInput = By.cssSelector("input[type='password'], [data-testid='password-input']");
+    private final By submitButton = By.cssSelector("button[type='submit'], [data-testid='submit-btn']");
+    private final By alertBanner = By.cssSelector("[role='alert'], .toast-alert");
+
+    public ${pageName}Page(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    public ${pageName}Page navigate() {
+        driver.get(URL);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(mainHeading));
+        return this;
+    }
+
+    public ${pageName}Page fillCredentials(String email, String password) {
+        WebElement emailEl = wait.until(ExpectedConditions.elementToBeClickable(emailInput));
+        emailEl.clear();
+        emailEl.sendKeys(email);
+
+        WebElement passEl = wait.until(ExpectedConditions.elementToBeClickable(passwordInput));
+        passEl.clear();
+        passEl.sendKeys(password);
+        return this;
+    }
+
+    public ${pageName}Page submit() {
+        wait.until(ExpectedConditions.elementToBeClickable(submitButton)).click();
+        return this;
+    }
+
+    public boolean isAlertPresent() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(alertBanner)).isDisplayed();
+    }
+}
+`,
+          testFileCode: `package com.qa.tests;
+
+import com.qa.pages.${pageName}Page;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
+public class ${pageName}Test {
+    private WebDriver driver;
+    private ${pageName}Page page;
+
+    @BeforeEach
+    public void setup() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--window-size=1920,1080");
+        driver = new ChromeDriver(options);
+        page = new ${pageName}Page(driver);
+    }
+
+    @Test
+    @DisplayName("Verify Happy Path Execution for ${pageName}")
+    public void testHappyPath() {
+        page.navigate()
+            .fillCredentials("qa.java.lead@example.com", "JavaSecure2026!")
+            .submit();
+        Assertions.assertTrue(page.isAlertPresent());
+    }
+
+    @AfterEach
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
+`,
+          fixtureCode: `<!-- pom.xml dependencies -->
+<dependencies>
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.18.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.2</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+`,
+          testDataJson: JSON.stringify({
+            validEmail: "qa.java.lead@example.com",
+            validPassword: "JavaSecure2026!"
+          }, null, 2),
+          folderStructure: `selenium-java-suite/
+├── pom.xml
+└── src/
+    ├── main/java/com/qa/pages/
+    │   └── ${pageName}Page.java
+    └── test/java/com/qa/tests/
+        └── ${pageName}Test.java`
+        };
+
+        return JSON.stringify(suite, null, 2);
+      }
+
+      // Default: Playwright-TS (or Playwright-JS)
+      const isTs = framework !== 'Playwright-JS';
+      const ext = isTs ? 'ts' : 'js';
+
+      const suite = {
+        name: `${pageName} Playwright Suite`,
+        framework: isTs ? 'Playwright-TS' : 'Playwright-JS',
+        targetUrl,
+        pageObjectName: `${pageName}Page`,
+        pageObjectCode: isTs ? `import { Page, Locator, expect } from '@playwright/test';
+
+/**
+ * Page Object Model for ${pageName}
+ * Built adhering to standards: ${standards}
+ */
+export class ${pageName}Page {
+  readonly page: Page;
+  readonly mainHeading: Locator;
+  readonly emailInput: Locator;
+  readonly passwordInput: Locator;
+  readonly submitButton: Locator;
+  readonly toastAlert: Locator;
+  readonly errorMessage: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.mainHeading = page.getByRole('heading', { level: 1 }).or(page.locator('h1, h2'));
+    this.emailInput = page.getByLabel(/email/i).or(page.getByTestId('email-input')).or(page.locator('input[type="email"]'));
+    this.passwordInput = page.getByLabel(/password/i).or(page.getByTestId('password-input')).or(page.locator('input[type="password"]'));
+    this.submitButton = page.getByRole('button', { name: /submit|sign in|continue|confirm|login/i });
+    this.toastAlert = page.getByRole('alert').or(page.getByTestId('toast-alert'));
+    this.errorMessage = page.locator('.error-message, [role="alert"], [data-testid="error-msg"]');
+  }
+
+  /**
+   * Navigates to the target page with network idle assurance
+   */
+  async goto() {
+    await this.page.goto('${targetUrl}');
+    await expect(this.mainHeading.first()).toBeVisible({ timeout: 10000 });
+  }
+
+  /**
+   * Enters test credentials safely using isolated locator abstractions
+   */
+  async fillCredentials(email: string, secret: string) {
+    await this.emailInput.first().fill(email);
+    await this.passwordInput.first().fill(secret);
+  }
+
+  /**
+   * Triggers the primary form submission
+   */
+  async submit() {
+    await expect(this.submitButton.first()).toBeEnabled();
+    await this.submitButton.first().click();
+  }
+
+  /**
+   * Asserts confirmation feedback
+   */
+  async assertSuccess(expectedSnippet?: string) {
+    await expect(this.toastAlert.first()).toBeVisible();
+    if (expectedSnippet) {
+      await expect(this.toastAlert.first()).toContainText(expectedSnippet);
+    }
+  }
+
+  /**
+   * Asserts validation error banner visibility
+   */
+  async assertErrorVisible(expectedText: string) {
+    await expect(this.errorMessage.first()).toBeVisible();
+    await expect(this.errorMessage.first()).toContainText(expectedText);
+  }
+}
+` : `import { expect } from '@playwright/test';
+
+export class ${pageName}Page {
+  constructor(page) {
+    this.page = page;
+    this.mainHeading = page.getByRole('heading', { level: 1 }).or(page.locator('h1, h2'));
+    this.emailInput = page.getByLabel(/email/i).or(page.getByTestId('email-input'));
+    this.passwordInput = page.getByLabel(/password/i).or(page.getByTestId('password-input'));
+    this.submitButton = page.getByRole('button', { name: /submit|sign in|continue|confirm|login/i });
+    this.toastAlert = page.getByRole('alert');
+    this.errorMessage = page.locator('.error-message, [role="alert"]');
+  }
+
+  async goto() {
+    await this.page.goto('${targetUrl}');
+    await expect(this.mainHeading.first()).toBeVisible({ timeout: 10000 });
+  }
+
+  async fillCredentials(email, secret) {
+    await this.emailInput.first().fill(email);
+    await this.passwordInput.first().fill(secret);
+  }
+
+  async submit() {
+    await expect(this.submitButton.first()).toBeEnabled();
+    await this.submitButton.first().click();
+  }
+
+  async assertSuccess() {
+    await expect(this.toastAlert.first()).toBeVisible();
+  }
+}
+`,
+        testFileCode: isTs ? `import { test, expect } from '../fixtures/testFixtures';
+import testData from '../data/testData.json';
+
+test.describe('${pageName} - Production Playwright Suite', () => {
+  test.beforeEach(async ({ ${camelPage}Page }) => {
+    await ${camelPage}Page.goto();
+  });
+
+  test('TC01 - Verify Happy Path user flow succeeds', async ({ ${camelPage}Page, page }) => {
+    // Feature context: ${desc}
+    await ${camelPage}Page.fillCredentials(testData.validUser.email, testData.validUser.password);
+    await ${camelPage}Page.submit();
+    await ${camelPage}Page.assertSuccess();
+    await expect(page).not.toHaveURL(/login|error/i);
+  });
+
+  test('TC02 - Verify Error Feedback on Invalid Credentials', async ({ ${camelPage}Page }) => {
+    await ${camelPage}Page.fillCredentials(testData.invalidUser.email, testData.invalidUser.password);
+    await ${camelPage}Page.submit();
+    await ${camelPage}Page.assertErrorVisible(testData.expectedErrors.invalidCredentials);
+  });
+
+  test('TC03 - Verify Accessibility and Keyboard Navigation', async ({ ${camelPage}Page, page }) => {
+    await page.keyboard.press('Tab');
+    await expect(${camelPage}Page.emailInput.first()).toBeFocused();
+  });
+});
+` : `import { test, expect } from '../fixtures/testFixtures';
+import testData from '../data/testData.json';
+
+test.describe('${pageName} - Playwright Suite', () => {
+  test.beforeEach(async ({ ${camelPage}Page }) => {
+    await ${camelPage}Page.goto();
+  });
+
+  test('TC01 - Verify Happy Path Flow', async ({ ${camelPage}Page }) => {
+    await ${camelPage}Page.fillCredentials(testData.validUser.email, testData.validUser.password);
+    await ${camelPage}Page.submit();
+    await ${camelPage}Page.assertSuccess();
+  });
+});
+`,
+        fixtureCode: isTs ? `import { test as baseTest } from '@playwright/test';
+import { ${pageName}Page } from '../pages/${pageName}Page';
+
+type CustomFixtures = {
+  ${camelPage}Page: ${pageName}Page;
+};
+
+export const test = baseTest.extend<CustomFixtures>({
+  ${camelPage}Page: async ({ page }, use) => {
+    const pageInstance = new ${pageName}Page(page);
+    await use(pageInstance);
+  },
+});
+
+export { expect } from '@playwright/test';
+` : `import { test as baseTest } from '@playwright/test';
+import { ${pageName}Page } from '../pages/${pageName}Page.js';
+
+export const test = baseTest.extend({
+  ${camelPage}Page: async ({ page }, use) => {
+    const pageInstance = new ${pageName}Page(page);
+    await use(pageInstance);
+  },
+});
+
+export { expect } from '@playwright/test';
+`,
+        testDataJson: JSON.stringify({
+          validUser: {
+            email: "qa.automation.lead@example.com",
+            password: "PlaywrightSecure2026!"
+          },
+          invalidUser: {
+            email: "invalid.format@@domain.io",
+            password: "WrongPassword999"
+          },
+          expectedErrors: {
+            invalidCredentials: "Invalid credentials or unauthorized attempt.",
+            requiredField: "This field is required."
+          }
+        }, null, 2),
+        folderStructure: `playwright-suite/
+├── playwright.config.${ext}
+├── package.json
+${isTs ? '├── tsconfig.json\n' : ''}├── src/
+│   ├── pages/
+│   │   └── ${pageName}Page.${ext}
+│   ├── fixtures/
+│   │   └── testFixtures.${ext}
+│   └── data/
+│       └── testData.json
+└── tests/
+    └── ${lowerPage}.spec.${ext}`
+      };
+
+      return JSON.stringify(suite, null, 2);
+    }
+
+    // 0.1 Bug Analysis & Bug Report Generation
     if (prompt.includes('Analyze Bug and Generate Professional Defect Report')) {
       const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);
       const modMatch = prompt.match(/Module:\s*(.*?)(?:\n|$)/i);

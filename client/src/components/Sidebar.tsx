@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
   { id: 'test-cases', label: 'Test Cases', icon: CheckSquare },
   { id: 'bug-analyzer', label: 'Bug Analyzer', icon: Bug },
   { id: 'api-testing', label: 'API Testing', icon: Globe2 },
-  { id: 'automation', label: 'Automation', icon: Cpu, phase: 5 },
+  { id: 'automation', label: 'Automation', icon: Cpu },
   { id: 'codebase', label: 'Codebase', icon: Code2, phase: 6 },
   { id: 'failure-intelligence', label: 'Failure Intelligence', icon: AlertTriangle, phase: 7 },
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, phase: 8 },

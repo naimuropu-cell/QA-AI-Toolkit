@@ -3,6 +3,7 @@ export interface AIContextPayload {
   techStack?: string;
   testFramework?: string;
   qaStandards?: string;
+  targetUrl?: string;
   knowledgeRules?: string[];
   systemRole?: string;
 }

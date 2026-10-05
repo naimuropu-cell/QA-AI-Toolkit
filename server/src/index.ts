@@ -11,6 +11,7 @@ import requirementRoutes from './routes/requirementRoutes';
 import testDesignRoutes from './routes/testDesignRoutes';
 import bugRoutes from './routes/bugRoutes';
 import apiTestingRoutes from './routes/apiTestingRoutes';
+import automationRoutes from './routes/automationRoutes';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use('/api/requirements', requirementRoutes);
 app.use('/api/test-design', testDesignRoutes);
 app.use('/api/bugs', bugRoutes);
 app.use('/api/api-testing', apiTestingRoutes);
+app.use('/api/automation', automationRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

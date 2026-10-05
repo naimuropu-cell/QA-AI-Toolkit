@@ -1,4 +1,4 @@
-import { DashboardMetrics, Project, ActivityLogItem, User } from '../types';
+import { DashboardMetrics, Project, ActivityLogItem, User, AutomationSuiteRecord } from '../types';
 
 const API_BASE = '/api';
 
@@ -405,6 +405,54 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to delete API test suite');
+    return res.json();
+  },
+
+  // Automation Generator
+  async generateAutomationSuite(data: {
+    projectId: string;
+    framework?: string;
+    pageName: string;
+    targetUrl?: string;
+    featureDescription: string;
+    locatorHints?: string;
+    codingStandards?: string;
+    save?: boolean;
+  }): Promise<{ suite: AutomationSuiteRecord; rawOutput: any; provider: string }> {
+    const res = await fetch(`${API_BASE}/automation/generate`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate automation suite');
+    }
+    return res.json();
+  },
+
+  async getAutomationSuites(projectId: string): Promise<{ suites: AutomationSuiteRecord[] }> {
+    const res = await fetch(`${API_BASE}/automation/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch automation suites');
+    return res.json();
+  },
+
+  async getAutomationSuite(id: string): Promise<{ suite: AutomationSuiteRecord }> {
+    const res = await fetch(`${API_BASE}/automation/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch automation suite');
+    return res.json();
+  },
+
+  async deleteAutomationSuite(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/automation/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete automation suite');
     return res.json();
   },
 

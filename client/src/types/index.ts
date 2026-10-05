@@ -20,6 +20,8 @@ export interface Project {
     scenarios: number;
     testCases: number;
     bugs: number;
+    apiSuites?: number;
+    automationSuites?: number;
     knowledgeItems?: number;
   };
 }
@@ -166,6 +168,21 @@ export interface ApiTestSuiteRecord {
   testScenarios: string; // JSON
   postmanScript: string;
   newmanCommand?: string;
+  projectId: string;
+  createdAt: string;
+}
+
+export interface AutomationSuiteRecord {
+  id: string;
+  name: string;
+  framework: string;
+  targetUrl?: string;
+  pageObjectName: string;
+  pageObjectCode: string;
+  testFileCode: string;
+  fixtureCode?: string;
+  testDataJson?: string;
+  folderStructure?: string;
   projectId: string;
   createdAt: string;
 }

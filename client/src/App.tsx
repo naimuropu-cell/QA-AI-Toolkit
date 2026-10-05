@@ -9,6 +9,7 @@ import { TestDesignPage } from './pages/TestDesignPage';
 import { TestCasesPage } from './pages/TestCasesPage';
 import { BugAnalyzerPage } from './pages/BugAnalyzerPage';
 import { ApiTestingPage } from './pages/ApiTestingPage';
+import { AutomationPage } from './pages/AutomationPage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -36,22 +37,7 @@ export const App: React.FC = () => {
           {currentTab === 'test-cases' && <TestCasesPage onNavigate={setCurrentTab} />}
           {currentTab === 'bug-analyzer' && <BugAnalyzerPage onNavigate={setCurrentTab} />}
           {currentTab === 'api-testing' && <ApiTestingPage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'automation' && (
-            <ModulePlaceholder
-              tab="automation"
-              title="Automation Generator"
-              phase={5}
-              description="Synthesize robust Playwright (TypeScript) and Selenium (Python) tests following Page Object Model."
-              plannedFeatures={[
-                'Playwright + TypeScript and Selenium + Python synthesis',
-                'Strict Page Object Model (POM) class generation',
-                'Locator prioritization (getByRole, getByTestId)',
-                'Code preview and one-click file download',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'automation' && <AutomationPage onNavigate={setCurrentTab} />}
 
           {currentTab === 'codebase' && (
             <ModulePlaceholder

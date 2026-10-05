@@ -45,9 +45,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     ]);
 
     // Derived or specific counts
-    const automationGeneratedCount = await prisma.activityLog.count({
-      where: { action: { contains: 'AUTOMATION' } }
-    });
+    const automationGeneratedCount = await prisma.automationSuite.count();
 
     const apiTestsGeneratedCount = await prisma.activityLog.count({
       where: { action: { contains: 'API_TEST' } }
