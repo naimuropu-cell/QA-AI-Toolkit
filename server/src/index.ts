@@ -14,6 +14,7 @@ import apiTestingRoutes from './routes/apiTestingRoutes';
 import automationRoutes from './routes/automationRoutes';
 import codebaseRoutes from './routes/codebaseRoutes';
 import failureRoutes from './routes/failureRoutes';
+import maintenanceRoutes from './routes/maintenanceRoutes';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/api-testing', apiTestingRoutes);
 app.use('/api/automation', automationRoutes);
 app.use('/api/codebase', codebaseRoutes);
 app.use('/api/failures', failureRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

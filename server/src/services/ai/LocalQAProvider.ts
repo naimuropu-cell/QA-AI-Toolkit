@@ -701,6 +701,220 @@ test('TC_INFRA - Verify endpoint availability with graceful retry', async ({ req
       return JSON.stringify(diagnosis, null, 2);
     }
 
+    // 0.01 Automation Maintenance & Script Audit
+    if (prompt.includes('Audit Automation Script for Maintenance Anti-Patterns')) {
+      const suiteMatch = prompt.match(/Suite Name:\s*(.*?)(?:\n|$)/i);
+      const frameworkMatch = prompt.match(/Framework:\s*(.*?)(?:\n|$)/i);
+      const scriptMatch = prompt.match(/Script Content:\s*```(?:\w+)?\n([\s\S]*?)```/i);
+
+      const suiteName = suiteMatch ? suiteMatch[1].trim() : 'Automated Test Suite';
+      const framework = frameworkMatch ? frameworkMatch[1].trim() : 'Playwright';
+      const script = scriptMatch ? scriptMatch[1] : '';
+
+      const lines = script.split('\n');
+      const issues: any[] = [];
+      let hardSleeps = 0;
+      let brittleLocators = 0;
+      let duplicateLogic = 0;
+      let asyncIssues = 0;
+
+      lines.forEach((lineText, idx) => {
+        const lineNum = idx + 1;
+        // Hard sleep detection
+        if (/waitForTimeout\s*\(|sleep\s*\(|\.wait\s*\(\d{3,}\)/.test(lineText)) {
+          hardSleeps++;
+          issues.push({
+            id: `SLEEP_${lineNum}`,
+            type: 'HARD_SLEEP',
+            severity: 'HIGH',
+            line: lineNum,
+            title: 'Hardcoded Sleep / Arbitrary Wait',
+            description: 'Hardcoded sleeps degrade test execution velocity and introduce race conditions under varying CI server loads.',
+            badCode: lineText.trim(),
+            suggestedFix: 'await expect(page.locator("...")).toBeVisible({ timeout: 10000 });',
+          });
+        }
+
+        // Brittle locator detection (xpath or deep hierarchy)
+        if (/\/\/[a-zA-Z]|xpath|div\s*>\s*div\s*>\s*div|\.btn\.btn-[a-z]+|\[class\*=/.test(lineText)) {
+          brittleLocators++;
+          issues.push({
+            id: `BRITTLE_${lineNum}`,
+            type: 'BRITTLE_LOCATOR',
+            severity: 'CRITICAL',
+            line: lineNum,
+            title: 'Brittle XPath / Fragile DOM Selector',
+            description: 'Absolute or class-heavy selectors break when CSS styling or DOM layout hierarchy changes.',
+            badCode: lineText.trim(),
+            suggestedFix: `page.getByRole('button', { name: /action/i }).or(page.getByTestId('action-btn'))`,
+          });
+        }
+
+        // Missing await in playwright
+        if (
+          framework.toLowerCase().includes('playwright') &&
+          /page\.(click|fill|goto|waitForSelector)\(/.test(lineText) &&
+          !lineText.includes('await')
+        ) {
+          asyncIssues++;
+          issues.push({
+            id: `ASYNC_${lineNum}`,
+            type: 'ASYNC_RACE',
+            severity: 'CRITICAL',
+            line: lineNum,
+            title: 'Missing Await on Asynchronous Action',
+            description: 'Unawaited Playwright promises trigger unhandled promise rejections and silent race conditions.',
+            badCode: lineText.trim(),
+            suggestedFix: `await ${lineText.trim()}`,
+          });
+        }
+
+        // Test skip without ticket reference
+        if (/test\.skip|it\.skip|xit\(/.test(lineText) && !/[A-Z]+-\d+/.test(lineText)) {
+          issues.push({
+            id: `SKIP_${lineNum}`,
+            type: 'OBSOLETE_ASSERTION',
+            severity: 'MEDIUM',
+            line: lineNum,
+            title: 'Silently Skipped Test Without Issue Reference',
+            description: 'Skipping tests without linking to a tracking defect ticket conceals regression coverage gaps.',
+            badCode: lineText.trim(),
+            suggestedFix: '// TODO: Unskip after resolution of PROJ-1234',
+          });
+        }
+      });
+
+      if (issues.length === 0) {
+        issues.push({
+          id: 'AUDIT_NOTICE_1',
+          type: 'DUPLICATE_LOGIC',
+          severity: 'LOW',
+          line: 1,
+          title: 'Inline Selector Architecture',
+          description: 'Consider extracting inline locators into a centralized Page Object Model.',
+          badCode: '// Inline selectors',
+          suggestedFix: 'Extract to Page Object Model getter',
+        });
+      }
+
+      const penalty = hardSleeps * 20 + brittleLocators * 15 + asyncIssues * 25;
+      const healthScore = Math.max(15, Math.min(100, 100 - penalty));
+      const status =
+        healthScore >= 80 ? 'CLEAN' : healthScore >= 50 ? 'MODERATE_RISK' : 'NEEDS_REFACTORING';
+
+      let refactored = script;
+      refactored = refactored.replace(
+        /await\s+page\.waitForTimeout\(\d+\);?/g,
+        '// [HEALED] Replaced hardcoded sleep with auto-waiting assertion\n    await expect(page.locator("body")).toBeVisible();'
+      );
+      refactored = refactored.replace(
+        /page\.locator\(['"]\/\/[^'"]+['"]\)/g,
+        "page.getByRole('button', { name: /submit|checkout|confirm/i })"
+      );
+      refactored = refactored.replace(
+        /cy\.xpath\(['"][^'"]+['"]\)/g,
+        "cy.get('[data-testid=\"submit-btn\"]')"
+      );
+
+      const auditResult = {
+        suiteName,
+        framework,
+        healthScore,
+        status,
+        summary: `Suite "${suiteName}" scored ${healthScore}/100 with ${issues.length} detected code smell(s). Detected ${hardSleeps} hardcoded sleep(s) and ${brittleLocators} brittle selector(s).`,
+        metrics: {
+          hardSleepsCount: hardSleeps,
+          brittleLocatorsCount: brittleLocators,
+          duplicateLogicCount: duplicateLogic,
+          asyncIssuesCount: asyncIssues,
+        },
+        issues,
+        refactoredCode: refactored,
+      };
+
+      return JSON.stringify(auditResult, null, 2);
+    }
+
+    // 0.02 Self-Healing Locator Engine
+    if (prompt.includes('Heal Broken Locator and Generate Resilient Selectors')) {
+      const origMatch = prompt.match(/Original Locator:\s*(.*?)(?:\n|$)/i);
+      const frameworkMatch = prompt.match(/Framework:\s*(.*?)(?:\n|$)/i);
+      const descMatch = prompt.match(/Target Description:\s*(.*?)(?:\n|$)/i);
+      const domMatch = prompt.match(/DOM Snippet:\s*```(?:html)?\n([\s\S]*?)```/i);
+
+      const originalLocator = origMatch ? origMatch[1].trim() : 'button.btn-primary';
+      const framework = frameworkMatch ? frameworkMatch[1].trim() : 'Playwright';
+      const desc = descMatch ? descMatch[1].trim() : 'Interactive Action Button';
+      const dom = domMatch ? domMatch[1] : '';
+
+      let testId = 'action-button';
+      let ariaName = 'Submit';
+      if (dom) {
+        const testIdMatch = dom.match(/data-testid=["']([^"']+)["']/i);
+        if (testIdMatch) testId = testIdMatch[1];
+        const textMatch = dom.match(/>([^<]+)</);
+        if (textMatch && textMatch[1].trim()) ariaName = textMatch[1].trim();
+      }
+
+      const isCypress = framework.toLowerCase().includes('cypress');
+      const isSelenium = framework.toLowerCase().includes('selenium');
+
+      let topLocator = `page.getByRole('button', { name: /${ariaName}/i })`;
+      if (isCypress) topLocator = `cy.contains('button', '${ariaName}')`;
+      if (isSelenium) topLocator = `By.xpath("//button[contains(normalize-space(),'${ariaName}')]")`;
+
+      const alternatives = [
+        {
+          locator: isCypress
+            ? `cy.get('[data-testid="${testId}"]')`
+            : isSelenium
+            ? `By.cssSelector("[data-testid='${testId}']")`
+            : `page.getByTestId('${testId}')`,
+          strategy: 'TEST_ID',
+          resilienceScore: 95,
+          explanation: 'Dedicated QA data-testid attribute guarantees zero breakage during redesigns and styling updates.',
+        },
+        {
+          locator: topLocator,
+          strategy: 'ROLE_BASED',
+          resilienceScore: 92,
+          explanation: 'Accessible role query mimics human user discovery via accessibility tree semantics.',
+        },
+        {
+          locator: isCypress
+            ? `cy.contains('${ariaName}')`
+            : isSelenium
+            ? `By.linkText("${ariaName}")`
+            : `page.getByText('${ariaName}', { exact: false })`,
+          strategy: 'SEMANTIC_TEXT',
+          resilienceScore: 84,
+          explanation: 'User-facing visible text locator matching button content.',
+        },
+        {
+          locator: isCypress
+            ? `cy.get('button[type="submit"]')`
+            : isSelenium
+            ? `By.cssSelector("button[type='submit']")`
+            : `page.locator('button[type="submit"]')`,
+          strategy: 'HIERARCHICAL',
+          resilienceScore: 75,
+          explanation: 'Functional HTML form attribute fallback.',
+        },
+      ];
+
+      const healingResult = {
+        originalLocator,
+        framework,
+        healedLocator: alternatives[0].locator,
+        resilienceScore: alternatives[0].resilienceScore,
+        strategy: alternatives[0].strategy,
+        explanation: `Original selector "${originalLocator}" was identified as fragile. Replaced with prioritized selector "${alternatives[0].locator}" providing ${alternatives[0].resilienceScore}% resilience against UI drift.`,
+        alternatives,
+      };
+
+      return JSON.stringify(healingResult, null, 2);
+    }
+
     // 0.1 Bug Analysis & Bug Report Generation
     if (prompt.includes('Analyze Bug and Generate Professional Defect Report')) {
       const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);

@@ -41,6 +41,8 @@ model Project {
   automationSuites AutomationSuite[]
   codebaseScans   CodebaseScan[]
   failureDiagnoses TestFailureDiagnosis[]
+  automationAudits AutomationAudit[]
+  healedLocators  HealedLocator[]
   knowledgeItems  KnowledgeItem[]
 }
 
@@ -200,3 +202,36 @@ model TestFailureDiagnosis {
   project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt           DateTime @default(now())
 }
+
+model AutomationAudit {
+  id                String   @id @default(uuid())
+  suiteName         String
+  framework         String   @default("Playwright") // Playwright, Cypress, Selenium
+  scriptContent     String   // The analyzed test code
+  healthScore       Int      // 0 - 100 (100 = flawless, 0 = severe rot)
+  status            String   @default("COMPLETED") // COMPLETED, NEEDS_REFACTORING, CLEAN
+  summary           String   // AI executive diagnosis
+  issuesJson        String   // JSON array of [{ id, type, severity, line, title, description, badCode, suggestedFix }]
+  refactoredCode    String?  // Fully healed / modernized test script
+  metricsJson       String   // JSON: { hardSleepsCount, brittleLocatorsCount, duplicateLogicCount, asyncIssuesCount }
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model HealedLocator {
+  id                String   @id @default(uuid())
+  originalLocator   String
+  framework         String   @default("Playwright")
+  domSnippet        String?
+  targetDescription String?
+  healedLocator     String   // Recommended top pick
+  resilienceScore   Int      // e.g. 95
+  strategy          String   // "ROLE_BASED" | "TEST_ID" | "SEMANTIC_TEXT" | "ARIA" | "HIERARCHICAL"
+  alternativesJson  String   // JSON array of [{ locator, strategy, resilienceScore, explanation }]
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+}
+

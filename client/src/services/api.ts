@@ -7,6 +7,8 @@ import {
   CodebaseScanRecord,
   RepositoryNativeResult,
   FailureDiagnosisRecord,
+  AutomationAuditRecord,
+  HealedLocatorRecord,
 } from '../types';
 
 const API_BASE = '/api';
@@ -603,6 +605,79 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to convert failure to regression test case');
+    return res.json();
+  },
+
+  // Maintenance & Self-Healing
+  async auditAutomationScript(data: {
+    projectId: string;
+    suiteName: string;
+    framework?: string;
+    scriptContent: string;
+    save?: boolean;
+  }): Promise<{ audit: AutomationAuditRecord; rawOutput: any; provider: string }> {
+    const res = await fetch(`${API_BASE}/maintenance/audit`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to audit automation script');
+    }
+    return res.json();
+  },
+
+  async getAutomationAudits(projectId: string): Promise<{ audits: AutomationAuditRecord[] }> {
+    const res = await fetch(`${API_BASE}/maintenance/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch automation audits');
+    return res.json();
+  },
+
+  async getAutomationAudit(id: string): Promise<{ audit: AutomationAuditRecord }> {
+    const res = await fetch(`${API_BASE}/maintenance/audits/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch automation audit');
+    return res.json();
+  },
+
+  async deleteAutomationAudit(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/maintenance/audits/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete automation audit');
+    return res.json();
+  },
+
+  async healLocator(data: {
+    projectId: string;
+    originalLocator: string;
+    framework?: string;
+    domSnippet?: string;
+    targetDescription?: string;
+    save?: boolean;
+  }): Promise<{ healed: HealedLocatorRecord; rawOutput: any; provider: string }> {
+    const res = await fetch(`${API_BASE}/maintenance/heal-locator`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to heal locator');
+    }
+    return res.json();
+  },
+
+  async getHealedLocators(projectId: string): Promise<{ healedLocators: HealedLocatorRecord[] }> {
+    const res = await fetch(`${API_BASE}/maintenance/healed-locators/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch healed locators');
     return res.json();
   },
 

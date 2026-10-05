@@ -49,6 +49,8 @@ export interface DashboardMetrics {
   apiTestsGenerated: number;
   bugsAnalyzed: number;
   failedTestsDiagnosed: number;
+  maintenanceAudits?: number;
+  healedLocators?: number;
   knowledgeBaseItems: number;
 }
 
@@ -264,6 +266,59 @@ export interface FailureDiagnosisRecord {
   projectId: string;
   createdAt: string;
 }
+
+export interface AuditIssue {
+  id: string;
+  type: 'HARD_SLEEP' | 'BRITTLE_LOCATOR' | 'ASYNC_RACE' | 'DUPLICATE_LOGIC' | 'OBSOLETE_ASSERTION';
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  line: number;
+  title: string;
+  description: string;
+  badCode: string;
+  suggestedFix: string;
+}
+
+export interface AutomationAuditRecord {
+  id: string;
+  suiteName: string;
+  framework: string;
+  scriptContent: string;
+  healthScore: number;
+  status: 'CLEAN' | 'MODERATE_RISK' | 'NEEDS_REFACTORING';
+  summary: string;
+  issues: AuditIssue[];
+  refactoredCode?: string;
+  metrics: {
+    hardSleepsCount: number;
+    brittleLocatorsCount: number;
+    duplicateLogicCount: number;
+    asyncIssuesCount: number;
+  };
+  projectId: string;
+  createdAt: string;
+}
+
+export interface HealedLocatorAlternative {
+  locator: string;
+  strategy: 'ROLE_BASED' | 'TEST_ID' | 'SEMANTIC_TEXT' | 'ARIA' | 'HIERARCHICAL';
+  resilienceScore: number;
+  explanation: string;
+}
+
+export interface HealedLocatorRecord {
+  id: string;
+  originalLocator: string;
+  framework: string;
+  domSnippet?: string;
+  targetDescription?: string;
+  healedLocator: string;
+  resilienceScore: number;
+  strategy: string;
+  alternatives: HealedLocatorAlternative[];
+  projectId: string;
+  createdAt: string;
+}
+
 
 
 

@@ -52,6 +52,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
     });
 
     const failedTestsDiagnosedCount = await prisma.testFailureDiagnosis.count();
+    const maintenanceAuditsCount = await prisma.automationAudit.count();
+    const healedLocatorsCount = await prisma.healedLocator.count();
 
     res.json({
       metrics: {
@@ -63,6 +65,8 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
         apiTestsGenerated: apiTestsGeneratedCount,
         bugsAnalyzed,
         failedTestsDiagnosed: failedTestsDiagnosedCount,
+        maintenanceAudits: maintenanceAuditsCount,
+        healedLocators: healedLocatorsCount,
         knowledgeBaseItems
       },
       recentProjects,

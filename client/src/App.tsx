@@ -12,6 +12,7 @@ import { ApiTestingPage } from './pages/ApiTestingPage';
 import { AutomationPage } from './pages/AutomationPage';
 import { CodebasePage } from './pages/CodebasePage';
 import { FailureIntelligencePage } from './pages/FailureIntelligencePage';
+import { AutomationMaintenancePage } from './pages/AutomationMaintenancePage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -42,22 +43,7 @@ export const App: React.FC = () => {
           {currentTab === 'automation' && <AutomationPage onNavigate={setCurrentTab} />}
           {currentTab === 'codebase' && <CodebasePage onNavigate={setCurrentTab} />}
           {currentTab === 'failure-intelligence' && <FailureIntelligencePage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'maintenance' && (
-            <ModulePlaceholder
-              tab="maintenance"
-              title="Automation Maintenance"
-              phase={8}
-              description="Audit test suites for brittle locators, arbitrary sleeps, test rot, and duplicate page objects."
-              plannedFeatures={[
-                'Duplicate test and obsolete test detection',
-                'Hard-coded sleep and timeout inspection',
-                'Broken locator and selector migration suggestions',
-                'Flaky test risk scoring and remediation recipes',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'maintenance' && <AutomationMaintenancePage onNavigate={setCurrentTab} />}
 
           {currentTab === 'knowledge-base' && (
             <ModulePlaceholder
