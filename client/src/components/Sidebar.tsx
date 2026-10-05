@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
   { id: 'bug-analyzer', label: 'Bug Analyzer', icon: Bug },
   { id: 'api-testing', label: 'API Testing', icon: Globe2 },
   { id: 'automation', label: 'Automation', icon: Cpu },
-  { id: 'codebase', label: 'Codebase', icon: Code2, phase: 6 },
+  { id: 'codebase', label: 'Codebase', icon: Code2 },
   { id: 'failure-intelligence', label: 'Failure Intelligence', icon: AlertTriangle, phase: 7 },
   { id: 'maintenance', label: 'Maintenance', icon: Wrench, phase: 8 },
   { id: 'knowledge-base', label: 'Knowledge Base', icon: BookOpen, phase: 9 },

@@ -1,4 +1,12 @@
-import { DashboardMetrics, Project, ActivityLogItem, User, AutomationSuiteRecord } from '../types';
+import {
+  DashboardMetrics,
+  Project,
+  ActivityLogItem,
+  User,
+  AutomationSuiteRecord,
+  CodebaseScanRecord,
+  RepositoryNativeResult,
+} from '../types';
 
 const API_BASE = '/api';
 
@@ -453,6 +461,81 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to delete automation suite');
+    return res.json();
+  },
+
+  // Codebase Intelligence
+  async scanCodebasePath(projectId: string, dirPath: string): Promise<{ scan: CodebaseScanRecord }> {
+    const res = await fetch(`${API_BASE}/codebase/scan-path`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ projectId, dirPath }),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to scan repository path');
+    }
+    return res.json();
+  },
+
+  async scanCodebaseManifest(data: {
+    projectId: string;
+    repositoryName?: string;
+    manifestContent: string;
+    samplePageObjects?: any[];
+  }): Promise<{ scan: CodebaseScanRecord }> {
+    const res = await fetch(`${API_BASE}/codebase/scan-manifest`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to analyze repository manifest');
+    }
+    return res.json();
+  },
+
+  async generateRepositoryNative(data: {
+    projectId: string;
+    scenario: string;
+    selectedPageObjects?: string[];
+    codingStandards?: string;
+  }): Promise<RepositoryNativeResult> {
+    const res = await fetch(`${API_BASE}/codebase/generate-native`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to generate repository-native automation');
+    }
+    return res.json();
+  },
+
+  async getCodebaseScans(projectId: string): Promise<{ scans: CodebaseScanRecord[] }> {
+    const res = await fetch(`${API_BASE}/codebase/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch codebase scans');
+    return res.json();
+  },
+
+  async getCodebaseScan(id: string): Promise<{ scan: CodebaseScanRecord }> {
+    const res = await fetch(`${API_BASE}/codebase/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch scan details');
+    return res.json();
+  },
+
+  async deleteCodebaseScan(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/codebase/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete codebase scan');
     return res.json();
   },
 

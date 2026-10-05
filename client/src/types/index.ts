@@ -22,6 +22,7 @@ export interface Project {
     bugs: number;
     apiSuites?: number;
     automationSuites?: number;
+    codebaseScans?: number;
     knowledgeItems?: number;
   };
 }
@@ -185,6 +186,58 @@ export interface AutomationSuiteRecord {
   folderStructure?: string;
   projectId: string;
   createdAt: string;
+}
+
+export interface DiscoveredPageObject {
+  name: string;
+  filePath: string;
+  methods: string[];
+  locators?: string[];
+}
+
+export interface DiscoveredFixture {
+  name: string;
+  filePath: string;
+  description: string;
+}
+
+export interface CodebaseScanRecord {
+  id: string;
+  repositoryName: string;
+  repositoryPath?: string;
+  detectedFramework: string;
+  detectedLanguage: string;
+  testDirectory?: string;
+  locatorStrategy?: string;
+  pageObjects: DiscoveredPageObject[];
+  fixtures: DiscoveredFixture[];
+  summaryMetrics: {
+    totalFilesScanned: number;
+    pageObjectsCount: number;
+    testFilesCount: number;
+    fixturesCount: number;
+  };
+  fileTree: string[];
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RepositoryNativeResult {
+  output: {
+    testTitle: string;
+    framework: string;
+    reusedPageObjects: string[];
+    testFileCode: string;
+    additiveMethodsCode: string;
+    explanation: string;
+  };
+  provider: string;
+  scanContext?: {
+    repositoryName: string;
+    framework: string;
+    locatorStrategy?: string;
+  } | null;
 }
 
 

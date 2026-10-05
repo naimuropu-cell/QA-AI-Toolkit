@@ -10,6 +10,7 @@ import { TestCasesPage } from './pages/TestCasesPage';
 import { BugAnalyzerPage } from './pages/BugAnalyzerPage';
 import { ApiTestingPage } from './pages/ApiTestingPage';
 import { AutomationPage } from './pages/AutomationPage';
+import { CodebasePage } from './pages/CodebasePage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -38,22 +39,7 @@ export const App: React.FC = () => {
           {currentTab === 'bug-analyzer' && <BugAnalyzerPage onNavigate={setCurrentTab} />}
           {currentTab === 'api-testing' && <ApiTestingPage onNavigate={setCurrentTab} />}
           {currentTab === 'automation' && <AutomationPage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'codebase' && (
-            <ModulePlaceholder
-              tab="codebase"
-              title="Codebase-Aware Intelligence"
-              phase={6}
-              description="Upload or connect existing repositories to extract conventions, existing page objects, and folder patterns."
-              plannedFeatures={[
-                'ZIP and local directory repository scanner',
-                'Automated tech-stack and test framework detection',
-                'Existing Page Object inventory indexing',
-                'Repository-native code generation without duplication',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'codebase' && <CodebasePage onNavigate={setCurrentTab} />}
 
           {currentTab === 'failure-intelligence' && (
             <ModulePlaceholder

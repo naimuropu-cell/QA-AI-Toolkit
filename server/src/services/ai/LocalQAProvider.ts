@@ -509,6 +509,97 @@ ${isTs ? '├── tsconfig.json\n' : ''}├── src/
       return JSON.stringify(suite, null, 2);
     }
 
+    // 0.05 Repository-Native Automation Synthesis (Phase 6 Codebase Intelligence)
+    if (prompt.includes('Synthesize Repository-Native Automation from Project Context')) {
+      const frameworkMatch = prompt.match(/Framework:\s*(.*?)(?:\n|$)/i);
+      const scenarioMatch = prompt.match(/Scenario:\s*([\s\S]*?)(?:Existing Page Objects:|$)/i);
+      const posMatch = prompt.match(/Existing Page Objects:\s*([\s\S]*?)(?:Coding Standards:|$)/i);
+      const framework = frameworkMatch ? frameworkMatch[1].trim() : 'Playwright-TS';
+      const scenario = scenarioMatch ? scenarioMatch[1].trim() : 'Execute user transaction reusing existing POM classes';
+      const posRaw = posMatch ? posMatch[1].trim() : 'LoginPage, CheckoutPage';
+
+      const isPython = framework.includes('Python');
+      const ext = isPython ? 'py' : 'ts';
+
+      const nativeOutput = {
+        testTitle: 'Repository-Native Automated Test',
+        framework,
+        reusedPageObjects: posRaw.split(',').map((p) => p.trim()).filter(Boolean),
+        testFileCode: isPython ? `import pytest
+from pages.checkout_page import CheckoutPage
+from pages.login_page import LoginPage
+
+class TestRepositoryNativeCheckout:
+    """Repository-native test suite reusing existing project Page Objects"""
+
+    def test_complete_checkout_with_existing_pom(self, driver, test_data):
+        # 1. Reuse existing LoginPage
+        login_page = LoginPage(driver)
+        login_page.goto()
+        login_page.fill_form(test_data["validUser"]["email"], test_data["validUser"]["password"])
+        login_page.submit()
+
+        # 2. Reuse existing CheckoutPage
+        checkout_page = CheckoutPage(driver)
+        checkout_page.goto()
+        # Newly synthesized additive action
+        checkout_page.apply_discount_code("PROMO2026")
+        checkout_page.submit()
+        assert checkout_page.is_order_confirmed()
+` : `import { test, expect } from '../fixtures/testFixtures';
+import { LoginPage } from '../pages/LoginPage';
+import { CheckoutPage } from '../pages/CheckoutPage';
+
+test.describe('Repository-Native Flow - ${scenario.slice(0, 40)}', () => {
+  test('TC_NATIVE_01 - Execute scenario reusing discovered Page Objects', async ({ page }) => {
+    // 1. Reusing discovered LoginPage
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.fillCredentials('qa.automation@example.com', 'SecurePass123!');
+    await loginPage.submit();
+
+    // 2. Reusing discovered CheckoutPage with additive methods
+    const checkoutPage = new CheckoutPage(page);
+    await checkoutPage.goto();
+    await checkoutPage.applyPromoCode('DISCOUNT50');
+    await checkoutPage.submit();
+    await checkoutPage.assertSuccess();
+  });
+});
+`,
+        additiveMethodsCode: isPython ? `    # --- ADDITIVE METHODS TO APPEND TO CheckoutPage (pages/checkout_page.py) ---
+    COUPON_INPUT = (By.CSS_SELECTOR, "input[name='coupon'], [data-testid='coupon-code']")
+    APPLY_COUPON_BTN = (By.CSS_SELECTOR, "button[data-testid='apply-coupon-btn']")
+
+    def apply_discount_code(self, coupon_code: str):
+        """Additive helper: Enters promotional coupon code"""
+        el = self.wait.until(EC.element_to_be_clickable(self.COUPON_INPUT))
+        el.clear()
+        el.send_keys(coupon_code)
+        self.wait.until(EC.element_to_be_clickable(self.APPLY_COUPON_BTN)).click()
+        return self
+` : `  // --- ADDITIVE METHODS TO APPEND TO CheckoutPage (src/pages/CheckoutPage.ts) ---
+  readonly couponInput: Locator = this.page.getByTestId('coupon-code').or(this.page.getByLabel(/promo code|coupon/i));
+  readonly applyCouponButton: Locator = this.page.getByRole('button', { name: /apply/i });
+
+  /**
+   * Additive method: Applies a promotional discount code
+   */
+  async applyPromoCode(code: string) {
+    await this.couponInput.fill(code);
+    await this.applyCouponButton.click();
+    await expect(this.page.getByText(/discount applied/i)).toBeVisible();
+  }
+`,
+        explanation: `Synthesized repository-native automation adhering to discovered project conventions:
+1. Directly imported existing discovered Page Objects rather than generating duplicate duplicate abstractions.
+2. Formatted additive methods to easily merge into existing class definitions without breaking existing tests.
+3. Preserved repository locator strategy and fixture setup patterns.`,
+      };
+
+      return JSON.stringify(nativeOutput, null, 2);
+    }
+
     // 0.1 Bug Analysis & Bug Report Generation
     if (prompt.includes('Analyze Bug and Generate Professional Defect Report')) {
       const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);

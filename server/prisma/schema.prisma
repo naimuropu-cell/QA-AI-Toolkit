@@ -39,6 +39,7 @@ model Project {
   bugs            BugReport[]
   apiSuites       ApiTestSuite[]
   automationSuites AutomationSuite[]
+  codebaseScans   CodebaseScan[]
   knowledgeItems  KnowledgeItem[]
 }
 
@@ -158,4 +159,22 @@ model AutomationSuite {
   projectId       String
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
+}
+
+model CodebaseScan {
+  id                String   @id @default(uuid())
+  repositoryName    String
+  repositoryPath    String?
+  detectedFramework String   @default("Playwright-TS") // Playwright-TS, Playwright-JS, Selenium-Python, Cypress, Jest
+  detectedLanguage  String   @default("TypeScript")     // TypeScript, JavaScript, Python, Java
+  testDirectory     String?  @default("tests")
+  locatorStrategy   String?  @default("getByTestId > getByRole > CSS")
+  pageObjectsJson   String   // JSON array of [{ name, filePath, methods: [...] }]
+  fixturesJson      String?  // JSON array of [{ name, filePath, description }]
+  summaryMetrics    String   // JSON object: { totalFiles, pageObjectsCount, testFilesCount, helperCount }
+  rawFileTree       String?  // Sanitized file tree
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
