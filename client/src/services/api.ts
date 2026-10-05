@@ -6,6 +6,7 @@ import {
   AutomationSuiteRecord,
   CodebaseScanRecord,
   RepositoryNativeResult,
+  FailureDiagnosisRecord,
 } from '../types';
 
 const API_BASE = '/api';
@@ -536,6 +537,72 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to delete codebase scan');
+    return res.json();
+  },
+
+  // Failure Intelligence
+  async diagnoseFailure(data: {
+    projectId: string;
+    testName: string;
+    framework?: string;
+    errorMessage: string;
+    stackTrace?: string;
+    executionLogs?: string;
+    screenshotUrl?: string;
+    save?: boolean;
+  }): Promise<{ diagnosis: FailureDiagnosisRecord; rawOutput: any; provider: string }> {
+    const res = await fetch(`${API_BASE}/failures/diagnose`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to diagnose test failure');
+    }
+    return res.json();
+  },
+
+  async getDiagnoses(projectId: string): Promise<{ diagnoses: FailureDiagnosisRecord[] }> {
+    const res = await fetch(`${API_BASE}/failures/project/${projectId}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch failure diagnoses');
+    return res.json();
+  },
+
+  async getDiagnosis(id: string): Promise<{ diagnosis: FailureDiagnosisRecord }> {
+    const res = await fetch(`${API_BASE}/failures/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch failure diagnosis');
+    return res.json();
+  },
+
+  async deleteDiagnosis(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/failures/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete failure diagnosis');
+    return res.json();
+  },
+
+  async convertFailureToBug(id: string): Promise<{ message: string; bug: any }> {
+    const res = await fetch(`${API_BASE}/failures/${id}/convert-bug`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to convert failure to bug report');
+    return res.json();
+  },
+
+  async convertFailureToTestCase(id: string): Promise<{ message: string; testCase: any }> {
+    const res = await fetch(`${API_BASE}/failures/${id}/convert-test-case`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to convert failure to regression test case');
     return res.json();
   },
 

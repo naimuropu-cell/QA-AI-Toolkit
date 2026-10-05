@@ -11,6 +11,7 @@ import { BugAnalyzerPage } from './pages/BugAnalyzerPage';
 import { ApiTestingPage } from './pages/ApiTestingPage';
 import { AutomationPage } from './pages/AutomationPage';
 import { CodebasePage } from './pages/CodebasePage';
+import { FailureIntelligencePage } from './pages/FailureIntelligencePage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -40,22 +41,7 @@ export const App: React.FC = () => {
           {currentTab === 'api-testing' && <ApiTestingPage onNavigate={setCurrentTab} />}
           {currentTab === 'automation' && <AutomationPage onNavigate={setCurrentTab} />}
           {currentTab === 'codebase' && <CodebasePage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'failure-intelligence' && (
-            <ModulePlaceholder
-              tab="failure-intelligence"
-              title="Failure Intelligence & Root Cause Engine"
-              phase={7}
-              description="Perform deep triage on logs, stack traces, and screenshots to calculate test vs. app culpability."
-              plannedFeatures={[
-                'Stack trace and execution log parsing',
-                'Root cause hypothesis with confidence rating',
-                'Culpability determination: Test vs. App vs. Environment',
-                'Actionable fix recommendations and regression test stubs',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'failure-intelligence' && <FailureIntelligencePage onNavigate={setCurrentTab} />}
 
           {currentTab === 'maintenance' && (
             <ModulePlaceholder

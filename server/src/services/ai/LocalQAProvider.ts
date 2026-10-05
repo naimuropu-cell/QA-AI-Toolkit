@@ -600,6 +600,107 @@ test.describe('Repository-Native Flow - ${scenario.slice(0, 40)}', () => {
       return JSON.stringify(nativeOutput, null, 2);
     }
 
+    // 0.08 Failure Intelligence & Root Cause Engine (Phase 7)
+    if (prompt.includes('Diagnose Test Failure and Calculate Culpability')) {
+      const testNameMatch = prompt.match(/Test Name:\s*(.*?)(?:\n|$)/i);
+      const frameworkMatch = prompt.match(/Framework:\s*(.*?)(?:\n|$)/i);
+      const errorMatch = prompt.match(/Error Message:\s*([\s\S]*?)(?:Stack Trace:|$)/i);
+      const stackMatch = prompt.match(/Stack Trace:\s*([\s\S]*?)(?:Execution Logs:|$)/i);
+      const logsMatch = prompt.match(/Execution Logs:\s*([\s\S]*?)(?:Strict Requirement:|$)/i);
+
+      const testName = testNameMatch ? testNameMatch[1].trim() : 'Failing Automated Test';
+      const framework = frameworkMatch ? frameworkMatch[1].trim() : 'Playwright';
+      const errorMessage = errorMatch ? errorMatch[1].trim() : 'Test assertion failed';
+      const stackTrace = stackMatch ? stackMatch[1].trim() : '';
+      const logs = logsMatch ? logsMatch[1].trim() : '';
+      const combined = `${errorMessage}\n${stackTrace}\n${logs}`;
+
+      const isAppBug =
+        combined.includes('500') ||
+        combined.includes('Internal Server') ||
+        combined.includes('TypeError') ||
+        combined.includes('NullPointer') ||
+        combined.includes('Cannot read property') ||
+        (combined.includes('expected') && combined.includes('200') && combined.includes('500'));
+
+      const isEnvIssue =
+        combined.includes('ECONNREFUSED') ||
+        combined.includes('ETIMEDOUT') ||
+        combined.includes('502') ||
+        combined.includes('503') ||
+        combined.includes('504') ||
+        combined.includes('Gateway') ||
+        combined.includes('NetworkError');
+
+      let culpability = 'Test Automation Flaw';
+      let score = 82;
+      let breakdown = { appBug: 12, testFlaw: 82, environment: 6 };
+      let category = 'Locator Drift / Actionability Timeout';
+      let analysis =
+        'The element selector failed to resolve within the designated timeout window (30,000ms). The element may have undergone a DOM markup change, class name refactoring, or remained obscured by an asynchronous rendering animation.';
+      let fixApp = 'Add a stable, semantic `data-testid="target-action-btn"` attribute to the interactive component.';
+      let fixTest =
+        'Replace brittle CSS/XPath locator with Playwright accessible locator: `page.getByRole("button", { name: /confirm/i })` or explicit wait condition.';
+      let stub = `// Resilient Locator Regression Stub (${framework})
+test('TC_RESILIENT - Verify stable locator actionability', async ({ page }) => {
+  await page.goto('/target-flow');
+  const targetBtn = page.getByRole('button', { name: /confirm/i }).or(page.getByTestId('target-action-btn'));
+  await expect(targetBtn).toBeVisible({ timeout: 10000 });
+  await targetBtn.click();
+});`;
+
+      if (isAppBug) {
+        culpability = 'Application Defect';
+        score = 89;
+        breakdown = { appBug: 89, testFlaw: 8, environment: 3 };
+        category = 'Unhandled Server Exception (HTTP 500)';
+        analysis =
+          'The test correctly formulated the valid transaction payload, but the backend application service threw an unhandled runtime exception or null reference error resulting in an HTTP 500 response.';
+        fixApp =
+          'Implement defensive parameter validation in the endpoint controller and ensure database transactions are wrapped in try/catch blocks with sanitized error codes.';
+        fixTest =
+          'Test assertion is architecturally correct. Ensure error boundary response assertions verify structured problem JSON rather than collapsing on unhandled status.';
+        stub = `// Regression Test Stub for Application Defect (${testName})
+test('TC_REGRESSION - Assert backend processes payload without 500 error', async ({ request }) => {
+  const response = await request.post('/api/v1/transaction', {
+    data: { id: "test_entity", amount: 100 }
+  });
+  expect(response.status()).not.toBe(500);
+  expect([200, 201]).toContain(response.status());
+});`;
+      } else if (isEnvIssue) {
+        culpability = 'Environment / Infrastructure';
+        score = 86;
+        breakdown = { appBug: 7, testFlaw: 7, environment: 86 };
+        category = 'Downstream Gateway Timeout / Connection Refused';
+        analysis =
+          'The test execution agent was unable to establish a TCP handshake with the target environment endpoint (ECONNREFUSED / 504 Gateway Timeout), indicating an infrastructure outage or gateway degradation.';
+        fixApp = 'Verify upstream ingress controller routes and ensure target container service is listening on configured port.';
+        fixTest = 'Implement automatic retry configuration with exponential backoff on transient network calls in CI/CD pipeline.';
+        stub = `// Network Resilience & Retry Stub
+test.describe.configure({ retries: 2 });
+test('TC_INFRA - Verify endpoint availability with graceful retry', async ({ request }) => {
+  const response = await request.get('/health');
+  expect(response.ok()).toBeTruthy();
+});`;
+      }
+
+      const diagnosis = {
+        testName,
+        framework,
+        culpability,
+        culpabilityScore: score,
+        culpabilityBreakdown: breakdown,
+        rootCauseCategory: category,
+        rootCauseAnalysis: analysis,
+        suggestedFixApp: fixApp,
+        suggestedFixTest: fixTest,
+        regressionStubCode: stub,
+      };
+
+      return JSON.stringify(diagnosis, null, 2);
+    }
+
     // 0.1 Bug Analysis & Bug Report Generation
     if (prompt.includes('Analyze Bug and Generate Professional Defect Report')) {
       const titleMatch = prompt.match(/Title:\s*(.*?)(?:\n|$)/i);

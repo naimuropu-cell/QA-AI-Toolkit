@@ -23,6 +23,7 @@ export interface Project {
     apiSuites?: number;
     automationSuites?: number;
     codebaseScans?: number;
+    failureDiagnoses?: number;
     knowledgeItems?: number;
   };
 }
@@ -238,6 +239,30 @@ export interface RepositoryNativeResult {
     framework: string;
     locatorStrategy?: string;
   } | null;
+}
+
+export interface FailureDiagnosisRecord {
+  id: string;
+  testName: string;
+  framework: string;
+  errorMessage: string;
+  stackTrace?: string;
+  executionLogs?: string;
+  screenshotUrl?: string;
+  culpability: string;
+  culpabilityScore: number;
+  culpabilityBreakdown: {
+    appBug: number;
+    testFlaw: number;
+    environment: number;
+  };
+  rootCauseCategory: string;
+  rootCauseAnalysis: string;
+  suggestedFixApp?: string;
+  suggestedFixTest?: string;
+  regressionStubCode?: string;
+  projectId: string;
+  createdAt: string;
 }
 
 

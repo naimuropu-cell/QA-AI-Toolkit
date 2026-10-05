@@ -51,9 +51,7 @@ export const getDashboardStats = async (req: Request, res: Response): Promise<vo
       where: { action: { contains: 'API_TEST' } }
     });
 
-    const failedTestsDiagnosedCount = await prisma.activityLog.count({
-      where: { action: { contains: 'FAILURE' } }
-    });
+    const failedTestsDiagnosedCount = await prisma.testFailureDiagnosis.count();
 
     res.json({
       metrics: {
