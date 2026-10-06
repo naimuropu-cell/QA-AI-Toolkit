@@ -13,6 +13,8 @@ import { AutomationPage } from './pages/AutomationPage';
 import { CodebasePage } from './pages/CodebasePage';
 import { FailureIntelligencePage } from './pages/FailureIntelligencePage';
 import { AutomationMaintenancePage } from './pages/AutomationMaintenancePage';
+import { KnowledgeBasePage } from './pages/KnowledgeBasePage';
+import { PromptLibraryPage } from './pages/PromptLibraryPage';
 import { ModulePlaceholder } from './pages/ModulePlaceholder';
 import { ProjectModal } from './components/ProjectModal';
 import { AuthModal } from './components/AuthModal';
@@ -44,38 +46,8 @@ export const App: React.FC = () => {
           {currentTab === 'codebase' && <CodebasePage onNavigate={setCurrentTab} />}
           {currentTab === 'failure-intelligence' && <FailureIntelligencePage onNavigate={setCurrentTab} />}
           {currentTab === 'maintenance' && <AutomationMaintenancePage onNavigate={setCurrentTab} />}
-
-          {currentTab === 'knowledge-base' && (
-            <ModulePlaceholder
-              tab="knowledge-base"
-              title="QA Knowledge Base"
-              phase={9}
-              description="Manage personal QA rules, locator hierarchies, and framework standards injected into AI workflows."
-              plannedFeatures={[
-                'Locator strategy hierarchy rules',
-                'Automation conventions and assertions standards',
-                'Bug reporting standards and severity guidelines',
-                'Project-level rule inheritance',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
-
-          {currentTab === 'prompt-library' && (
-            <ModulePlaceholder
-              tab="prompt-library"
-              title="Prompt & AI Skill Library"
-              phase={9}
-              description="Curate reusable QA prompts across requirements, test cases, automation, and failure analysis."
-              plannedFeatures={[
-                'Categorized QA prompts library',
-                'Variable placeholders for user stories and endpoints',
-                'Search, tag, and favorite custom prompts',
-                'Direct one-click prompt execution',
-              ]}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
-            />
-          )}
+          {currentTab === 'knowledge-base' && <KnowledgeBasePage onNavigate={setCurrentTab} />}
+          {currentTab === 'prompt-library' && <PromptLibraryPage onNavigate={setCurrentTab} />}
 
           {currentTab === 'settings' && (
             <div className="p-6 max-w-4xl mx-auto space-y-6">

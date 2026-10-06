@@ -15,6 +15,8 @@ import automationRoutes from './routes/automationRoutes';
 import codebaseRoutes from './routes/codebaseRoutes';
 import failureRoutes from './routes/failureRoutes';
 import maintenanceRoutes from './routes/maintenanceRoutes';
+import knowledgeRoutes from './routes/knowledgeRoutes';
+import { knowledgeService } from './services/knowledgeService';
 
 dotenv.config();
 
@@ -51,6 +53,7 @@ app.use('/api/automation', automationRoutes);
 app.use('/api/codebase', codebaseRoutes);
 app.use('/api/failures', failureRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/knowledge', knowledgeRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
@@ -92,6 +95,10 @@ const initDbAndSeed = async () => {
       });
       console.log('Seeding completed successfully.');
     }
+
+    // Ensure prompt catalog and baseline knowledge items exist
+    await knowledgeService.seedCuratedPrompts();
+    await knowledgeService.seedInitialKnowledge();
   } catch (err) {
     console.warn('DB initialization check:', err);
   }

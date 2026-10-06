@@ -44,6 +44,7 @@ model Project {
   automationAudits AutomationAudit[]
   healedLocators  HealedLocator[]
   knowledgeItems  KnowledgeItem[]
+  promptTemplates PromptTemplate[]
 }
 
 model ActivityLog {
@@ -142,6 +143,7 @@ model KnowledgeItem {
   category  String   @default("Automation Rules")
   content   String
   tags      String?
+  isActive  Boolean  @default(true)
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -234,4 +236,23 @@ model HealedLocator {
   project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt         DateTime @default(now())
 }
+
+model PromptTemplate {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  category      String   @default("Test Design") // "Requirement Analysis", "Test Design", "API Testing", "Bug Reporting", "Automation", "Security & Compliance"
+  systemRole    String?  @default("Senior QA Engineer")
+  promptText    String
+  variablesJson String?  // JSON array of [{ name, label, defaultValue, description }]
+  isCustom      Boolean  @default(true)
+  isFavorite    Boolean  @default(false)
+  tags          String?
+  targetModule  String?  @default("test-cases")
+  projectId     String?
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 

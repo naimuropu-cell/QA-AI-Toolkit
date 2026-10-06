@@ -52,6 +52,7 @@ export interface DashboardMetrics {
   maintenanceAudits?: number;
   healedLocators?: number;
   knowledgeBaseItems: number;
+  promptTemplates?: number;
 }
 
 export type NavigationTab =
@@ -318,6 +319,47 @@ export interface HealedLocatorRecord {
   projectId: string;
   createdAt: string;
 }
+
+export interface KnowledgeItemRecord {
+  id: string;
+  title: string;
+  category: string;
+  content: string;
+  tags?: string;
+  isActive: boolean;
+  projectId?: string;
+  project?: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PromptVariable {
+  name: string;
+  label: string;
+  defaultValue?: string;
+  description?: string;
+}
+
+export interface PromptTemplateRecord {
+  id: string;
+  title: string;
+  description?: string;
+  category: string;
+  systemRole?: string;
+  promptText: string;
+  variables: PromptVariable[];
+  isCustom: boolean;
+  isFavorite: boolean;
+  tags?: string;
+  targetModule?: string;
+  projectId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 
 

@@ -9,6 +9,8 @@ import {
   FailureDiagnosisRecord,
   AutomationAuditRecord,
   HealedLocatorRecord,
+  KnowledgeItemRecord,
+  PromptTemplateRecord,
 } from '../types';
 
 const API_BASE = '/api';
@@ -678,6 +680,173 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('Failed to fetch healed locators');
+    return res.json();
+  },
+
+  // Knowledge Items
+  async getKnowledgeItems(params?: {
+    projectId?: string;
+    category?: string;
+    search?: string;
+  }): Promise<{ items: KnowledgeItemRecord[] }> {
+    const query = new URLSearchParams();
+    if (params?.projectId) query.append('projectId', params.projectId);
+    if (params?.category) query.append('category', params.category);
+    if (params?.search) query.append('search', params.search);
+
+    const res = await fetch(`${API_BASE}/knowledge/items?${query.toString()}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch knowledge items');
+    return res.json();
+  },
+
+  async getKnowledgeItem(id: string): Promise<{ item: KnowledgeItemRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/items/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch knowledge item');
+    return res.json();
+  },
+
+  async createKnowledgeItem(data: {
+    title: string;
+    category?: string;
+    content: string;
+    tags?: string;
+    isActive?: boolean;
+    projectId?: string;
+  }): Promise<{ item: KnowledgeItemRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/items`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create knowledge item');
+    }
+    return res.json();
+  },
+
+  async updateKnowledgeItem(
+    id: string,
+    data: Partial<KnowledgeItemRecord>
+  ): Promise<{ item: KnowledgeItemRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/items/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update knowledge item');
+    }
+    return res.json();
+  },
+
+  async deleteKnowledgeItem(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/knowledge/items/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete knowledge item');
+    return res.json();
+  },
+
+  async getActiveContextRules(projectId?: string): Promise<{ rules: string[] }> {
+    const query = projectId ? `?projectId=${projectId}` : '';
+    const res = await fetch(`${API_BASE}/knowledge/context-rules${query}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch active context rules');
+    return res.json();
+  },
+
+  // Prompt Templates
+  async getPromptTemplates(params?: {
+    projectId?: string;
+    category?: string;
+    search?: string;
+    favoritesOnly?: boolean;
+  }): Promise<{ templates: PromptTemplateRecord[] }> {
+    const query = new URLSearchParams();
+    if (params?.projectId) query.append('projectId', params.projectId);
+    if (params?.category) query.append('category', params.category);
+    if (params?.search) query.append('search', params.search);
+    if (params?.favoritesOnly) query.append('favoritesOnly', 'true');
+
+    const res = await fetch(`${API_BASE}/knowledge/prompts?${query.toString()}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch prompt templates');
+    return res.json();
+  },
+
+  async getPromptTemplate(id: string): Promise<{ template: PromptTemplateRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/prompts/${id}`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch prompt template');
+    return res.json();
+  },
+
+  async createPromptTemplate(data: {
+    title: string;
+    description?: string;
+    category?: string;
+    systemRole?: string;
+    promptText: string;
+    variables?: any[];
+    isCustom?: boolean;
+    isFavorite?: boolean;
+    tags?: string;
+    targetModule?: string;
+    projectId?: string;
+  }): Promise<{ template: PromptTemplateRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/prompts`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to create prompt template');
+    }
+    return res.json();
+  },
+
+  async updatePromptTemplate(
+    id: string,
+    data: Partial<PromptTemplateRecord>
+  ): Promise<{ template: PromptTemplateRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/prompts/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update prompt template');
+    }
+    return res.json();
+  },
+
+  async deletePromptTemplate(id: string): Promise<{ deletedId: string }> {
+    const res = await fetch(`${API_BASE}/knowledge/prompts/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to delete prompt template');
+    return res.json();
+  },
+
+  async togglePromptFavorite(id: string): Promise<{ template: PromptTemplateRecord }> {
+    const res = await fetch(`${API_BASE}/knowledge/prompts/${id}/favorite`, {
+      method: 'POST',
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to toggle prompt favorite');
     return res.json();
   },
 

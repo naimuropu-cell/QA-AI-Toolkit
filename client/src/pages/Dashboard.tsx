@@ -61,6 +61,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     { label: 'Failures Diagnosed', value: metrics?.failedTestsDiagnosed ?? 0, icon: AlertTriangle, color: 'text-rose-400', tab: 'failure-intelligence' as NavigationTab },
     { label: 'Maintenance Audits', value: metrics?.maintenanceAudits ?? 0, icon: Wrench, color: 'text-amber-400', tab: 'maintenance' as NavigationTab },
     { label: 'Knowledge Base Items', value: metrics?.knowledgeBaseItems ?? 0, icon: BookOpen, color: 'text-sky-400', tab: 'knowledge-base' as NavigationTab },
+    { label: 'Prompt Templates', value: metrics?.promptTemplates ?? 0, icon: Sparkles, color: 'text-purple-400', tab: 'prompt-library' as NavigationTab },
   ];
 
   const quickActions = [
@@ -70,6 +71,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     { title: 'Generate Automation', desc: 'Create repo-native Playwright or Selenium POMs', icon: Sparkles, tab: 'automation' as NavigationTab, color: 'border-blue-500/30 bg-blue-950/20 text-blue-300' },
     { title: 'Analyze Failure', desc: 'Diagnose stack trace & test vs. app culpability', icon: AlertTriangle, tab: 'failure-intelligence' as NavigationTab, color: 'border-rose-500/30 bg-rose-950/20 text-rose-300' },
     { title: 'Maintain & Heal Tests', desc: 'Audit anti-patterns & heal brittle locators', icon: Wrench, tab: 'maintenance' as NavigationTab, color: 'border-amber-500/30 bg-amber-950/20 text-amber-300' },
+    { title: 'Curated QA Prompts', desc: 'Battle-tested prompts with variable runner', icon: Sparkles, tab: 'prompt-library' as NavigationTab, color: 'border-purple-500/30 bg-purple-950/20 text-purple-300' },
     { title: 'Generate API Tests', desc: 'Synthesize REST scenarios & Postman scripts', icon: Globe2, tab: 'api-testing' as NavigationTab, color: 'border-violet-500/30 bg-violet-950/20 text-violet-300' },
   ];
 
