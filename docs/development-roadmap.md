@@ -34,24 +34,27 @@
   - Postman Collection JSON (v2.1) export & Newman CLI command generator with automated secret masking.
 
 
-- [ ] **Phase 5: Automation Generator**
-  - Playwright (TypeScript/JavaScript) generator.
-  - Selenium (Python/Java) generator.
-  - Page Object Model synthesis with locator prioritization.
+- [x] **Phase 5: Automation Generator**
+  - Playwright (TypeScript & JavaScript) Page Object Model and test generator.
+  - Selenium (Python & Java) Page Object Model and test generator.
+  - Test fixtures, test data synthesis, and multi-file project ZIP export.
 
-- [ ] **Phase 6: Codebase Intelligence**
-  - ZIP / folder scanner with secret filter.
-  - AST / static framework and locator detection.
-  - Project QA Context generation for repository-native automation.
+- [x] **Phase 6: Codebase Intelligence & Native Automation**
+  - Local repository folder scanner & ZIP archive analyzer with secret exclusion.
+  - Project structure scanner detecting framework, page objects, and locator conventions.
+  - Repository-native automation synthesis adhering strictly to existing codebase conventions.
 
-- [ ] **Phase 7: Failure Intelligence**
-  - Stack trace, console log, and screenshot analysis.
-  - Culpability scoring (Test issue vs. Application bug vs. Environment failure).
+- [x] **Phase 7: Failure Intelligence & Root Cause Engine**
+  - Stack trace, console log, and error message triage.
+  - Tri-factor culpability calculation (Application Defect vs. Test Automation Flaw vs. Environment Issue).
+  - 1-Click conversion to Bug Report and Regression Test Case with resilient test stubs.
 
-- [ ] **Phase 8: Automation Maintenance**
-  - Test rot and duplicate test detection.
-  - Brittle locator and hard-wait audit.
+- [x] **Phase 8: Automation Maintenance & Self-Healing Engine**
+  - Test suite code smell auditor (hardcoded sleeps, brittle locators, async race conditions).
+  - Maintainability health score (0-100) and automated script refactoring.
+  - Self-healing locator studio with accessibility role, testId, and resilience percentage scoring.
 
-- [ ] **Phase 9: Knowledge Layer & Prompt Library**
-  - Reusable prompt catalog with categorization and search.
-  - Personal QA Knowledge Base with contextual injection.
+- [x] **Phase 9: Knowledge Layer & Curated Prompt Library**
+  - Curated QA prompt catalog across requirements, test design, API testing, security, and accessibility.
+  - Dynamic prompt variable interpolator with 1-click test execution and target module launching.
+  - Personal QA Knowledge Base with active contextual rule injection into all AI generation prompts.
